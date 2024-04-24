@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import ttk
 from PIL import ImageTk, Image
+import os
 
 if __name__ == "__main__":
     screen = Tk()
@@ -21,21 +22,13 @@ if __name__ == "__main__":
     ttk.OptionMenu(screen, selected_map, *maps).grid(column=0, row=0)
     
     #Map Folder
-    unlabeld_map = {
-        'Ascent' : 'Ascent.png',
-        'Bind' : 'Bind.png',
-        'Icebox' : 'Icebox.png',
-        'Split' : 'Split.png',
-        'Lotus' : 'Lotus.png',
-        'Breeze' : 'Breeze.png',
-        'Sunset' : 'Sunset.png',
-    }
+    unlabeled_map = "Maps"
     
     #Displaying Map
     def display_image(selected_map):
         map_name = selected_map.get()
-        map_path = unlabeld_map.get(map_name)
-        if map_path:
+        map_path = os.path.join(unlabeled_map, map_name.lower() + ".png")
+        if os.path.exists(map_path):
             map = Image.open(map_path)
             map = map.resize((600, 600))
             photo = ImageTk.PhotoImage(map)
