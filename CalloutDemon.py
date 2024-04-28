@@ -3,6 +3,41 @@ from tkinter import ttk
 from PIL import ImageTk, Image # make sure install pillow lib
 import os
 
+# Sets the center image based on current selected map
+def set_center_image(labeled = True):
+    
+    map_suffix = "_unlabeled.png"
+    if labeled:
+        map_suffix = "_labeled.png"
+    
+    current_map = selected_map.get().lower()
+    map_path = os.path.join("images/maps/", current_map + map_suffix)
+    if os.path.exists(map_path):
+        map = Image.open(map_path).resize((600, 600))
+        photo = ImageTk.PhotoImage(map)
+        image_label.config(image = photo)
+        image_label.image = photo
+    
+
+#Displaying Map
+def display_image(map: StringVar, folder):
+    set_center_image()
+    current_callout.set("")
+        
+def practice_loop():
+    
+    # Decides if game is already being practiced
+    if current_callout.get() != "":
+        current_callout.set("")
+        set_center_image()
+        return
+    
+    current_callout.set("Omen Tree")
+    set_center_image(labeled=False)
+    
+    
+    
+            
 if __name__ == "__main__":
     screen = Tk()
     screen.geometry("800x800")
@@ -22,17 +57,6 @@ if __name__ == "__main__":
     
     #Map Folder
     map_folder = os.path.join("images/maps")
-    
-    #Displaying Map
-    def display_image(map: StringVar, folder):
-        map_name = map.get()
-        map_path = os.path.join(folder, map_name.lower() + "_labeled.png")
-        if os.path.exists(map_path):
-            map = Image.open(map_path)
-            map = map.resize((600, 600))
-            photo = ImageTk.PhotoImage(map)
-            image_label.config(image = photo)
-            image_label.image = photo
             
     default_map = os.path.join(map_folder, 'ascent_labeled.png')
     default_map = ImageTk.PhotoImage(Image.open(default_map).resize((600,600)))
@@ -41,4 +65,9 @@ if __name__ == "__main__":
     image_label.grid(column=1, row=1)
     selected_map.trace_add('write', lambda *args: display_image(selected_map, map_folder))
     
+    # Label to hold callout
+    current_callout = StringVar()
+    ttk.Label(screen, textvariable=current_callout).grid(column=1, row=10)
+    
+    practice_button = ttk.Button(screen, text="Start/Stop Practice", command = practice_loop).grid(column=1, row=0)
     screen.mainloop()
