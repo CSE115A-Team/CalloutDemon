@@ -51,9 +51,12 @@ def practice_loop():
     practice_button_text.set("Stop Practice")
     
 if __name__ == "__main__":
+    
+    # Creates Screen
     screen = Tk()
     screen.geometry("800x800")
     
+    # Creates main form
     main_form = ttk.Frame(screen, padding=10)
     main_form.grid()
     
@@ -61,26 +64,21 @@ if __name__ == "__main__":
     maps = ['Ascent', 'Bind', 'Icebox', 'Split', 'Lotus', 'Breeze', 'Sunset', 'Ascent']
     maps.sort()
     
-    # Create a menu options
+    # Creates dropdown menu and string variable
     selected_map = StringVar(value = maps[0])
-    
-    # Creates dropdown
     ttk.OptionMenu(screen, selected_map, *maps).grid(column=0, row=0)
     
-    #Map Folder
-    map_folder = os.path.join("images/maps")
-            
-    default_map = os.path.join(map_folder, 'ascent_labeled.png')
-    default_map = ImageTk.PhotoImage(Image.open(default_map).resize((600,600)))
-
-    image_label = ttk.Label(screen, image=default_map)
+    # Sets center photo and logic to change it with OptionMenu
+    image_label = ttk.Label(screen)
     image_label.grid(column=1, row=1)
-    selected_map.trace_add('write', lambda *args: display_image(selected_map, map_folder))
+    selected_map.trace_add('write', lambda *args: display_image())
+    set_center_image()
     
-    # Label to hold callout
+    # Current callout label and string variable
     current_callout = StringVar()
     ttk.Label(screen, textvariable=current_callout).grid(column=1, row=10)
     
+    # Practice button logic and string variable
     practice_button_text = StringVar(value="Start Practice")
     practice_button = ttk.Button(screen, textvariable=practice_button_text, command = practice_loop).grid(column=1, row=0)
     screen.mainloop()
