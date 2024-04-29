@@ -1,7 +1,13 @@
 from tkinter import *
 from tkinter import ttk
 from PIL import ImageTk, Image # make sure install pillow lib
+
 import os
+import random
+import json
+
+# Holds current callouts and locations
+callout_dictionary = {}
 
 # Sets the center image based on current selected map
 def set_center_image(labeled = True):
@@ -18,7 +24,6 @@ def set_center_image(labeled = True):
         image_label.config(image = photo)
         image_label.image = photo
     
-
 #Displaying Map
 def display_image(map: StringVar, folder):
     set_center_image()
@@ -29,15 +34,22 @@ def practice_loop():
     # Decides if game is already being practiced
     if current_callout.get() != "":
         current_callout.set("")
+        practice_button_text.set("Start Practice")
         set_center_image()
         return
     
-    current_callout.set("Omen Tree")
+    # Gets current maps then loads json holding callouts
+    current_map = selected_map.get().lower()
+    with open("settings/" + current_map + "_callouts.json") as file:
+        callout_dictionary = json.load(file)
+        
+    # Chooses random callout
+    new_callout = random.choice(list(callout_dictionary.keys()))
+
+    current_callout.set(new_callout)
     set_center_image(labeled=False)
+    practice_button_text.set("Stop Practice")
     
-    
-    
-            
 if __name__ == "__main__":
     screen = Tk()
     screen.geometry("800x800")
@@ -69,5 +81,6 @@ if __name__ == "__main__":
     current_callout = StringVar()
     ttk.Label(screen, textvariable=current_callout).grid(column=1, row=10)
     
-    practice_button = ttk.Button(screen, text="Start/Stop Practice", command = practice_loop).grid(column=1, row=0)
+    practice_button_text = StringVar(value="Start Practice")
+    practice_button = ttk.Button(screen, textvariable=practice_button_text, command = practice_loop).grid(column=1, row=0)
     screen.mainloop()
