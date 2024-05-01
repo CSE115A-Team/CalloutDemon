@@ -49,7 +49,20 @@ def handle_map_click(event):
 def display_image():
     set_center_image()
     current_callout.set("")
+
+def toggle_canvas_transparency(event):
+    global canvas_transparent
+    canvas_transparent = not canvas_transparent
+    if canvas_transparent:
+        screen.wm_attributes("-topmost", True) # Sets window at top most
+        screen.wm_attributes("-alpha", "0.1")  # Set transparent
+        practice_button.config(state='disabled') #Disables button
+    else:
+        screen.wm_attributes("-alpha", 1.0)  # Disable transparency   
+        screen.wm_attributes("-topmost", False) #Disables top most priority
+        practice_button.config(state='normal') #Enables button
         
+
 def practice_loop():
     
     # Decides if game is already being practiced
@@ -83,6 +96,7 @@ if __name__ == "__main__":
     screen.geometry("800x800")
     
     # Creates main form
+
     main_form = ttk.Frame(screen, padding=10)
     main_form.grid()
     
@@ -95,7 +109,7 @@ if __name__ == "__main__":
     ttk.OptionMenu(screen, selected_map, *maps).grid(column=0, row=0)
     
     # Sets center photo and logic to change it with OptionMenu
-    image_label = ttk.Label(screen)
+    image_label = Label(screen)
     image_label.grid(column=1, row=1)
     selected_map.trace_add('write', lambda *args: display_image())
     set_center_image()
@@ -106,5 +120,13 @@ if __name__ == "__main__":
     
     # Practice button logic and string variable
     practice_button_text = StringVar(value="Start Practice")
-    practice_button = ttk.Button(screen, textvariable=practice_button_text, command = practice_loop).grid(column=1, row=0)
+    practice_button = ttk.Button(screen, textvariable=practice_button_text, command = practice_loop, state='normal')
+    practice_button.grid(column=1, row=0)
+    
+    # Toggle canvas transparency on pressing "m"
+    canvas_transparent = False
+    screen.bind("m", toggle_canvas_transparency)
+    
+
+
     screen.mainloop()
