@@ -23,9 +23,30 @@ def set_center_image(labeled = True):
         photo = ImageTk.PhotoImage(map)
         image_label.config(image = photo)
         image_label.image = photo
-    
+
+def handle_map_click(event):
+    # Load callouts with their coordinates
+    current_map = selected_map.get().lower()
+    with open(f"settings/{current_map}_callouts.json") as file:
+        callouts = json.load(file)
+
+    # Determine if the click is within any callout area
+    for callout, coords in callouts.items():
+        if coords['x'] <= event.x <= coords['x'] + coords['width'] and \
+           coords['y'] <= event.y <= coords['y'] + coords['height']:
+            print(f"Clicked on callout: {callout}")
+            return
+    print("Clicked outside any callout")
+
+# def handle_map_click(event):
+    # # Get the coordinates of the click relative to the top-left corner of the image
+    # x = event.x
+    # y = event.y
+    # print(f"Map clicked at ({x}, {y})")
+    # # Additional functionality will be added here to respond to the click
+
 #Displaying Map
-def display_image(map: StringVar, folder):
+def display_image():
     set_center_image()
     current_callout.set("")
         
@@ -36,6 +57,8 @@ def practice_loop():
         current_callout.set("")
         practice_button_text.set("Start Practice")
         set_center_image()
+        # Unbind Mouse Click
+        image_label.unbind("<Button-1>") 
         return
     
     # Gets current maps then loads json holding callouts
@@ -49,7 +72,10 @@ def practice_loop():
     current_callout.set(new_callout)
     set_center_image(labeled=False)
     practice_button_text.set("Stop Practice")
-    
+
+    # Bind Mouse Click
+    image_label.bind("<Button-1>", handle_map_click)
+
 if __name__ == "__main__":
     
     # Creates Screen
