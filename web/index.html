@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CalloutDemon</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>CalloutDemon</h1>
+    <select id="mapSelector" onchange="updateMapImage()">
+        <option value="Ascent_labeled.png">Ascent</option>
+        <option value="Bind_labeled.png">Bind</option>
+        <option value="Icebox_labeled.png">Icebox</option>
+        <option value="Split_labeled.png">Split</option>
+        <option value="Lotus_labeled.png">Lotus</option>
+        <option value="Breeze_labeled.png">Breeze</option>
+        <option value="Sunset_labeled.png">Sunset</option>
+    </select>
+    <button id="gameButton" onclick="toggleGameLoop()">Start Game</button>
+    <img id="mapImage" src="images/maps/Ascent_labeled.png" alt="Map Image" style="max-width: 600px; display: block; margin: auto;">
+    <p id="calloutDisplay"></p>
+    
+    <script src="eel.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>
