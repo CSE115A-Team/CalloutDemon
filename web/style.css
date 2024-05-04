@@ -1,12 +1,24 @@
+/* Color pallete https://flatuicolors.com/palette/es */
+:root {
+    --bg-color: #2c2c54;
+    --hover-color: #cd6133;
+    --text-color: #d1ccc0;
+    --dim-text-color: #a0a0a0;
+    --element-color: #ff793f;
+    --element-border-color: #cd6133;
+}
+
+
 body {
     font-family: Arial, sans-serif;
     text-align: center;
     margin-top: 20px;
-    background-color: #f0f0f0;
+    background-color: var(--bg-color);
 }
 
 h1 {
-    color: #333;
+    color: var(--text-color);
+
 }
 
 #mapImage {
@@ -16,24 +28,24 @@ h1 {
 
 #calloutDisplay {
     font-size: 18px;
-    color: #666;
+    color: var(--text-color);
     margin-bottom: 20px; /* Space below the callout text */
 }
 
 button, select {
     padding: 10px 15px;
     margin-bottom: 20px;
-    border: 1px solid #ccc;
+    border: 1px solid var(--element-border-color);
     border-radius: 4px;
-    background-color: white;
+    background-color: var(--element-color);
     cursor: pointer;
 }
 
 button:hover, select:hover {
-    background-color: #f8f8f8;
+    background-color: var(--hover-color);
 }
 
 .disabled-dropdown {
-    background-color: #e0e0e0; /* Light gray background */
-    color: #a0a0a0; /* Dim text color */
+    background-color: var(--hover-color); /* Light gray background */
+    color: var(--dim-text-color); /* Dim text color */
 }
