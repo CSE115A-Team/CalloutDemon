@@ -18,7 +18,9 @@
         <option value="Sunset_labeled.png">Sunset</option>
     </select>
     <button id="gameButton" onclick="toggleGameLoop()">Start Game</button>
-    <img id="mapImage" src="images/maps/Ascent_labeled.png" alt="Map Image" style="max-width: 600px; display: block; margin: auto;">
+    <svg id="svgContainer" width="600" height="600">
+        <image id="mapImage" xlink:href="images/maps/Ascent_labeled.png" alt="Map Image" style="max-width: 600px; display: block; margin: auto;"/>
+    </svg>
     <p id="calloutDisplay"></p>
     
     <script src="eel.js"></script>
