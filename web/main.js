@@ -7,6 +7,7 @@ function updateMapImage() {
 }
 
 let gameRunning = false;
+let calloutData = {}; 
 function toggleGameLoop() {
     gameRunning = !gameRunning;
     document.getElementById('gameButton').innerText = gameRunning ? 'Stop Game' : 'Start Game';
@@ -48,6 +49,22 @@ function toggleGameLoop() {
     }
 }
 
+function setupImageClickEvent() {
+    const mapImage = document.getElementById('mapImage');
+    mapImage.addEventListener('click', function(event) {
+        if (gameRunning) {
+            const rect = this.getBoundingClientRect();
+            const x = event.clientX - rect.left; // X coordinate relative to the image
+            const y = event.clientY - rect.top;  // Y coordinate relative to the image
+            console.log(`Clicked at x: ${x}, y: ${y}`);
+
+            // Send coordinates to Python only if the game is running
+            eel.receive_coordinates(x, y);
+        }
+    });
+}
+
 window.onload = () => {
     updateMapImage(); 
+    setupImageClickEvent();
 }
