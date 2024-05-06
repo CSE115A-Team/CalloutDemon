@@ -1,75 +1,16 @@
 const mapImage = document.getElementById('mapImage');
 const svgContainer = document.getElementById('svgContainer');
 
+let displayedCallouts = {};
+let calloutStack = [];
 function updateMapImage() {
 
     clearMapText();
+    drawMapCallouts();
     const selectedMap = document.getElementById('mapSelector').value;
-    console.log('Selected image path:', 'images/maps/' + selectedMap);
-    mapImage.setAttribute("xlink:href", 'images/maps/' + selectedMap);
+    console.log('Selected image path:', 'images/maps/' + selectedMap + '_unlabeled.png');
+    mapImage.setAttribute("xlink:href", 'images/maps/' + selectedMap + '_unlabeled.png');
 }
-
-function clearMapText() {
-    var svgElements = svgContainer.childNodes;
-
-    for (var i = 0; i < svgElements.length; i++) {
-        if (svgElements[i].nodeName === "text") {
-            svgContainer.removeChild(svgElements[i]);
-        }
-    }
-}
-
-let gameRunning = false;
-let calloutData = {}; 
-function toggleGameLoop() {
-    clearMapText();
-    gameRunning = !gameRunning;
-    document.getElementById('gameButton').innerText = gameRunning ? 'Stop Game' : 'Start Game';
-    const currentMap = document.getElementById('mapSelector').value;
-
-    if (gameRunning) {
-        // Disable Dropdown Menu
-        mapSelector.disabled = true;
-        mapSelector.classList.add('disabled-dropdown');        
-
-        // Switch Map to unlabeled
-        let unlabeledVersion = currentMap.replace('_labeled', '_unlabeled');
-        mapImage.setAttribute("xlink:href", 'images/maps/' + unlabeledVersion);
-        
-        // Get the Callout
-        eel.get_random_callout(currentMap.replace('_labeled.png', ''))(function(callout) {
-            if (callout) {
-                // Display the callout name and store the data
-                document.getElementById('calloutDisplay').innerText = `${callout[0]}`;
-                calloutData = callout[1];
-            } else {
-                document.getElementById('calloutDisplay').innerText = "No callout found";
-                calloutData = {};  // Reset the data if none found
-            }
-        });
-
-    } else {
-        // Enable the dropdown and update its appearance
-        mapSelector.disabled = false;
-        mapSelector.classList.remove('disabled-dropdown');
-
-        // Switch back to the labeled version 
-        updateMapImage();
-    }
-}
-
-
-mapImage.addEventListener('click', function(event) {
-    if (gameRunning) {
-        const rect = this.getBoundingClientRect();
-        const x = event.clientX - rect.left; // X coordinate relative to the image
-        const y = event.clientY - rect.top;  // Y coordinate relative to the image
-        console.log(`Clicked at x: ${x}, y: ${y}`);
-
-        // Send coordinates to Python only if the game is running
-        eel.receive_coordinates(x, y);
-    }
-});
 
 function addCallout(text, topX, topY, bottomX, bottomY) {
 
@@ -94,29 +35,110 @@ function addCallout(text, topX, topY, bottomX, bottomY) {
     }
 
     svgContainer.appendChild(textElement);
+    calloutStack.push(textElement);
 }
+
+function drawMapCallouts() {
+    const selectedMap = document.getElementById('mapSelector').value;
+    calloutJson = fetch('settings/' + selectedMap + '_callouts.json')
+        .then((response) => response.json())
+        .then((json) => displayedCallouts = json);
+
+    // Loop and display all keys in json
+    for (const callout in displayedCallouts) {
+        var points = displayedCallouts[callout];
+        addCallout(callout, points[0], points[1], points[2], points[3]);
+    }
+}
+
+// Removes all text on the image
+function clearMapText() {
+    while (calloutStack.length > 0) {
+        svgContainer.removeChild(calloutStack.pop());
+    }
+}
+
+let gameRunning = false;
+let calloutData = {}; 
+
+function toggleGameLoop() {
+    gameRunning = !gameRunning;
+    document.getElementById('gameButton').innerText = gameRunning ? 'Stop Game' : 'Start Game';
+    const currentMap = document.getElementById('mapSelector').value;
+
+    if (gameRunning) {
+        // Disable Dropdown Menu
+        mapSelector.disabled = true;
+        mapSelector.classList.add('disabled-dropdown');        
+
+        // Clear callouts 
+        clearMapText();
+        
+        // Get the Callout
+        eel.get_random_callout(currentMap)(function(callout) {
+            if (callout) {
+                // Display the callout name and store the data
+                document.getElementById('calloutDisplay').innerText = `${callout[0]}`;
+                calloutData = callout[1];
+            } else {
+                document.getElementById('calloutDisplay').innerText = "No callout found";
+                calloutData = {};  // Reset the data if none found
+            }
+        });
+
+    } else {
+        // Enable the dropdown and update its appearance
+        mapSelector.disabled = false;
+        mapSelector.classList.remove('disabled-dropdown');
+
+        // Remove callout text
+        document.getElementById('calloutDisplay').innerText = "";
+
+        // Switch back to the labeled version 
+        updateMapImage();
+    }
+}
+
+
+mapImage.addEventListener('click', function(event) {
+    if (gameRunning) {
+        const rect = this.getBoundingClientRect();
+        const x = event.clientX - rect.left; // X coordinate relative to the image
+        const y = event.clientY - rect.top;  // Y coordinate relative to the image
+        console.log(`Clicked at x: ${x}, y: ${y}`);
+
+        // Send coordinates to Python only if the game is running
+        eel.receive_coordinates(x, y);
+    }
+});
+
 
 // Code to edit callout boxes
 let topX, topY, bottomX, bottomY;
 mapImage.addEventListener('mousedown', function(event) {
-    const rect = this.getBoundingClientRect();
-    topX = event.clientX - rect.left;
-    topY = event.clientY - rect.top;
+    if (!gameRunning) {
+        const rect = this.getBoundingClientRect();
+        topX = event.clientX - rect.left;
+        topY = event.clientY - rect.top;
+    }
 });
 
 mapImage.addEventListener('mouseup', function(event) {
-    const rect = this.getBoundingClientRect();
-    bottomX = event.clientX - rect.left;
-    bottomY = event.clientY - rect.top;
+    if (!gameRunning) {
+        const rect = this.getBoundingClientRect();
+        bottomX = event.clientX - rect.left;
+        bottomY = event.clientY - rect.top;
 
-    const calloutName = prompt("Enter a callout name:")
+        const calloutName = prompt("Enter a callout name:")
 
-    if (calloutName !== null) {
-        addCallout(calloutName, topX, topY, bottomX, bottomY);
-    } 
+        if (calloutName !== null) {
+            addCallout(calloutName, topX, topY, bottomX, bottomY);
+            displayedCallouts[calloutName] = [topX, topY, bottomX, bottomY];
+            console.log(displayedCallouts);
+        } 
+    }
 });
 
 window.onload = () => {
     updateMapImage(); 
-    setupImageClickEvent();
 }
