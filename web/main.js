@@ -50,4 +50,33 @@ function toggleGameLoop() {
 
 window.onload = () => {
     updateMapImage(); 
+    document.addEventListener('keypress', function(event) {
+        if (event.key === 'm' || event.key === 'M') {
+            toggleOverlay();
+        }
+    });
+}
+
+let overlayVisible = false;
+function toggleOverlay() {
+    overlayVisible = !overlayVisible;
+    const mapImage = document.getElementById('mapImage');
+    const gameButton = document.getElementById('gameButton');
+    
+    if (overlayVisible) {
+        // Display map image overlay
+        mapImage.style.position = 'fixed';
+        mapImage.style.top = '0';
+        mapImage.style.left = '0';
+        mapImage.style.background = 'rgba(0, 0, 0, 0)'; // Add a semi-transparent background
+
+    } else {
+        // Restore map image styles
+        mapImage.style.position = 'static';
+        mapImage.style.width = 'auto';
+        mapImage.style.height = 'auto';
+        mapImage.style.zIndex = 'auto';
+        mapImage.style.background = 'none';
+    }
+
 }
