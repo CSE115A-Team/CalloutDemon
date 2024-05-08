@@ -60,7 +60,6 @@ function clearMapText() {
 
 let gameRunning = false;
 let calloutData = {}; 
-
 function toggleGameLoop() {
     gameRunning = !gameRunning;
     document.getElementById('gameButton').innerText = gameRunning ? 'Stop Game' : 'Start Game';
@@ -95,7 +94,7 @@ function toggleGameLoop() {
         document.getElementById('calloutDisplay').innerText = "";
 
         // Switch back to the labeled version 
-        updateMapImage();
+        drawMapCallouts();
     }
 }
 
