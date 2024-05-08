@@ -14,11 +14,6 @@ function updateMapImage() {
         .then((json) => displayedCallouts = json);
 }
 
-mapImage.addEventListener('load', () => {
-    clearMapText();
-    drawMapCallouts();
-});
-
 function addCalloutText(text, topX, topY, bottomX, bottomY) {
 
     // How much to offset position of label
@@ -104,7 +99,8 @@ function toggleGameLoop() {
     }
 }
 
-let removeCallout = true
+let removeCallout = false;
+let editCalloutName = true;
 mapImage.addEventListener('click', function(event) {
     const rect = this.getBoundingClientRect();
     const x = event.clientX - rect.left; // X coordinate relative to the image
@@ -120,8 +116,6 @@ mapImage.addEventListener('click', function(event) {
         for (const key in displayedCallouts) {
             const points = displayedCallouts[key];
 
-            console.log(points);
-
             // Checks if it is the current callout and removes callout if so
             if (x >= points[0] && y >= points[1] && x <= points[2] && y <= points[3]) {
                 delete displayedCallouts[key];
@@ -131,9 +125,28 @@ mapImage.addEventListener('click', function(event) {
             }
         }
     }
+    else if (editCalloutName) {
+
+        // Loop over callouts and find the one at clicked location
+        for (const key in displayedCallouts) {
+            const points = displayedCallouts[key];
+
+            // Checks if it is the current callout and changes name if so
+            if (x >= points[0] && y >= points[1] && x <= points[2] && y <= points[3]) {
+                const calloutName = prompt("Enter a new callout name:")
+                if (calloutName !== null) {
+                    displayedCallouts[calloutName] = displayedCallouts[key];
+                    delete displayedCallouts[key];
+                    clearMapText();
+                    drawMapCallouts();
+                }
+                return;
+            }
+        }
+    }
 });
 
-let addCallout = false
+let addCallout = false;
 function initSelectCalloutLocation() {
 
     // Code to edit callout boxes
@@ -174,6 +187,16 @@ function initSelectCalloutLocation() {
         }
     });
 }
+
+let isFirstLoad = true;
+mapImage.addEventListener('load', () => {
+    if (isFirstLoad) {
+        updateMapImage();
+        isFirstLoad = false;
+    }
+    clearMapText();
+    drawMapCallouts();
+});
 
 window.onload = () => {
     initSelectCalloutLocation();
