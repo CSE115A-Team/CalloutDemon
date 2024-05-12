@@ -49,11 +49,12 @@ function toggleGameLoop() {
 }
 
 window.onload = function() {
-    document.getElementById('backButton').onclick = function() {
-        window.location.href = 'index.html';
-    };
-};
+    updateMapImage();  // Ensure map image is updated on page load
 
-window.onload = () => {
-    updateMapImage(); 
-}
+    var backButton = document.getElementById('backButton');
+    if (backButton) {
+        backButton.onclick = function() {
+            window.location.href = 'index.html';
+        };
+    }
+};
