@@ -1,6 +1,9 @@
 const mapImage = document.getElementById('mapImage');
 const svgContainer = document.getElementById('svgContainer');
 
+const addCalloutButton = document.getElementById('addButton');
+const delCalloutButton = document.getElementById('delButton');
+
 let displayedCallouts = {};
 let calloutStack = [];
 
@@ -98,8 +101,12 @@ function toggleGameLoop() {
     }
 }
 
+
 let removeCallout = false;
-let editCalloutName = true;
+addCalloutButton.addEventListener('click', function() {
+    removeCallout = true;
+});
+
 mapImage.addEventListener('click', function(event) {
     const rect = this.getBoundingClientRect();
     const x = event.clientX - rect.left; // X coordinate relative to the image
@@ -123,8 +130,9 @@ mapImage.addEventListener('click', function(event) {
                 return;
             }
         }
+        removeCallout = false
     }
-    else if (editCalloutName) {
+    else {
 
         // Loop over callouts and find the one at clicked location
         for (const key in displayedCallouts) {
@@ -146,6 +154,9 @@ mapImage.addEventListener('click', function(event) {
 });
 
 let addCallout = false;
+addCalloutButton.addEventListener('click', function() {
+    addCallout = true;
+});
 function initSelectCalloutLocation() {
 
     // Code to edit callout boxes
@@ -183,6 +194,7 @@ function initSelectCalloutLocation() {
                 displayedCallouts[calloutName] = [topX, topY, bottomX, bottomY];
                 console.log(displayedCallouts);
             } 
+            addCallout = false;
         }
     });
 }
