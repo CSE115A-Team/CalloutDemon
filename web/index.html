@@ -21,10 +21,12 @@
     <a href='settingPage.html'>
         <button id="settingButton">Setting</button>
     </a>
-    <img id="mapImage" src="images/maps/ascent_unlabeled.png" alt="Map Image" style="max-width: 600px; display: block; margin: auto;">
+    <svg id="svgContainer" width="600" height="600">
+        <image id="mapImage" xlink:href="images/maps/ascent_unlabeled.png" alt="Map Image" style="max-width: 600px; display: block; margin: auto;"/>
+    </svg>
     <p id="calloutDisplay"></p>
-    <button id="addButton">Add Callout</button>
-    <button id="delButton">Delete Callout</button>
+    <button id="addButton" onclick="setAddFlag()">Add Callout</button>
+    <button id="delButton" onclick="setRemoveFlag()">Delete Callout</button>
     
     <script src="eel.js"></script>
     <script src="main.js"></script>

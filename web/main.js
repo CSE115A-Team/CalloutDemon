@@ -103,9 +103,16 @@ function toggleGameLoop() {
 
 
 let removeCallout = false;
-addCalloutButton.addEventListener('click', function() {
+let editCallout = true;
+let addCallout = false;
+
+function setRemoveFlag() {
     removeCallout = true;
-});
+}
+function setAddFlag() {
+    addCallout = true;
+    editCallout = false;
+}
 
 mapImage.addEventListener('click', function(event) {
     const rect = this.getBoundingClientRect();
@@ -118,6 +125,8 @@ mapImage.addEventListener('click', function(event) {
         eel.receive_coordinates(x, y);
     }
     else if (removeCallout) {
+        removeCallout = false
+
         // Loop over callouts and find the one at clicked location
         for (const key in displayedCallouts) {
             const points = displayedCallouts[key];
@@ -130,10 +139,8 @@ mapImage.addEventListener('click', function(event) {
                 return;
             }
         }
-        removeCallout = false
     }
-    else {
-
+    else if (editCallout) {
         // Loop over callouts and find the one at clicked location
         for (const key in displayedCallouts) {
             const points = displayedCallouts[key];
@@ -151,12 +158,9 @@ mapImage.addEventListener('click', function(event) {
             }
         }
     }
+    editCallout = true
 });
 
-let addCallout = false;
-addCalloutButton.addEventListener('click', function() {
-    addCallout = true;
-});
 function initSelectCalloutLocation() {
 
     // Code to edit callout boxes
@@ -171,6 +175,8 @@ function initSelectCalloutLocation() {
 
     mapImage.addEventListener('mouseup', function(event) {
         if (addCallout) {
+            addCallout = false;
+
             const rect = this.getBoundingClientRect();
             bottomX = event.clientX - rect.left;
             bottomY = event.clientY - rect.top;
@@ -194,7 +200,6 @@ function initSelectCalloutLocation() {
                 displayedCallouts[calloutName] = [topX, topY, bottomX, bottomY];
                 console.log(displayedCallouts);
             } 
-            addCallout = false;
         }
     });
 }
