@@ -48,6 +48,13 @@ function toggleGameLoop() {
     }
 }
 
-window.onload = () => {
-    updateMapImage(); 
-}
+window.onload = function() {
+    updateMapImage();  // Ensure map image is updated on page load
+
+    var backButton = document.getElementById('backButton');
+    if (backButton) {
+        backButton.onclick = function() {
+            window.location.href = 'index.html';
+        };
+    }
+};
