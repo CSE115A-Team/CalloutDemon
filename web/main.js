@@ -1,6 +1,8 @@
 const mapImage = document.getElementById('mapImage');
 const svgContainer = document.getElementById('svgContainer');
 
+let speech_to_text = new MicInput();
+
 let displayedCallouts = {};
 let calloutStack = [];
 
@@ -150,10 +152,8 @@ function initSelectCalloutLocation() {
 
     // Code to edit callout boxes
     let topX, topY, bottomX, bottomY;
-    recorder = new micInput();
 
     mapImage.addEventListener('mousedown', function(event) {
-        recorder.startRecording();
         if (addCallout) {
             const rect = this.getBoundingClientRect();
             topX = event.clientX - rect.left;
@@ -162,7 +162,6 @@ function initSelectCalloutLocation() {
     });
 
     mapImage.addEventListener('mouseup', function(event) {
-        recorder.stopRecording();
         if (addCallout) {
             const rect = this.getBoundingClientRect();
             bottomX = event.clientX - rect.left;
@@ -191,6 +190,35 @@ function initSelectCalloutLocation() {
     });
 }
 
+let isStarted = false;
+function setVoiceCalloutHotkey(key) {
+    document.addEventListener('keydown', (event) => {
+        if (!isStarted) {
+
+            // Check if the key pressed is the 's' key for start recording
+            if (event.key === key) {
+                isStarted = true;
+                speech_to_text.startRecording();
+            }
+        }
+    });
+
+    document.addEventListener('keyup', (event) => {
+        if (isStarted) {
+
+            // Check if the key pressed is the 's' key for start recording
+            if (event.key === key) {
+
+                // Wait 300ms before stopping recording 
+                setTimeout(() => {
+                    isStarted = false;
+                    speech_to_text.stopRecording();
+                }, 300);
+            }
+        }
+    });
+}
+
 let isFirstLoad = true;
 mapImage.addEventListener('load', () => {
     if (isFirstLoad) {
@@ -203,5 +231,6 @@ mapImage.addEventListener('load', () => {
 
 window.onload = () => {
     initSelectCalloutLocation();
+    setVoiceCalloutHotkey('t');
     updateMapImage();
 }

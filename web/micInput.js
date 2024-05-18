@@ -1,7 +1,7 @@
 // Create object to create the audio stream
 // Use startRecording() to start recording
 // Use stopRecording() to end recording
-class micInput {
+class MicInput {
     constructor() {
         this.audioStream = null;
         this.audioRecorder = null;
@@ -29,9 +29,15 @@ class micInput {
     }
 
     stopRecording() {
-        if (this.recognition) {
-            this.recognition.stop();
+        this.recognition.stop();
+        console.log('Recording stoped.');
+    }
+
+    getSpeechTranscript() {
+        if (this.transcript) {
+            return this.transcript;
         }
+        return "";
     }
 }
   
