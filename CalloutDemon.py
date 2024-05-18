@@ -20,5 +20,6 @@ def get_random_callout(map_name):
         print(f"Failed to read {json_path}: {str(e)}")
         return None
 
+
 if __name__ == "__main__":
     eel.start('index.html', size=(800, 800))  # Start the Eel application with the specified window size

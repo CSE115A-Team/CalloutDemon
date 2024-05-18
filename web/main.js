@@ -16,7 +16,9 @@ function toggleGameLoop() {
     if (gameRunning) {
         // Disable Dropdown Menu
         mapSelector.disabled = true;
-        mapSelector.classList.add('disabled-dropdown');        
+        gamemodeSelector.disabled = true;
+        mapSelector.classList.add('disabled-dropdown');   
+        gamemodeSelector.classList.add('disabled-dropdown');    
 
         // Switch Map to unlabeled
         let unlabeledVersion = currentMap.replace('_labeled', '_unlabeled');
@@ -37,7 +39,9 @@ function toggleGameLoop() {
     } else {
         // Enable the dropdown and update its appearance
         mapSelector.disabled = false;
+        gamemodeSelector.disabled = false;
         mapSelector.classList.remove('disabled-dropdown');
+        gamemodeSelector.classList.remove('disabled-dropdown');
 
         // Switch back to the labeled version 
         let labeledVersion = currentMap.replace('_unlabeled', '_labeled');
@@ -50,4 +54,5 @@ function toggleGameLoop() {
 
 window.onload = () => {
     updateMapImage(); 
-}
+    };
+
