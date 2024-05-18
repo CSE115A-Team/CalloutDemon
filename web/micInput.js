@@ -2,43 +2,36 @@
 // Use startRecording() to start recording
 // Use stopRecording() to end recording
 class micInput {
-  constructor() {
-    this.audioStream = null;
-    this.audioRecorder = null
+    constructor() {
+        this.audioStream = null;
+        this.audioRecorder = null;
+        this.audioChunks = [];
+        this.transcript = '';
 
-    navigator.mediaDevices.getUserMedia({ audio: true })
-      .then(stream => this.audioStream = stream)
-      .catch(error => {
-        console.error("Error accessing microphone:", error);
-      });
-  }
+        this.recognition = new window.webkitSpeechRecognition(); // Chrome
+        this.recognition.continuous = true;
+        this.recognition.interimResults = false;
+        this.recognition.lang = 'en-US';
 
-  startRecording() {
-    this.audioRecorder = new MediaRecorder(this.audioStream);
-    this.audioRecorder.start();
+        this.recognition.onresult = (event) => {
+            this.transcript = event.results[event.results.length - 1][0].transcript;
+        };
 
-    console.log("Started Recording");
-  }
-
-  stopRecording() {
-    // Set up recorder to save data
-    this.audioRecorder.ondataavailable = (event) => {
-      const recordedChunks = event.data;
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        const base64Data = reader.result; // dataURL containing base64 encoded audio data
-        eel.receive_audio_data(base64Data);  // Send base64 string to Python
-      };
-      reader.readAsDataURL(recordedChunks);
-      console.log(recordedChunks);
-
-    };
-
-    if (this.audioRecorder && this.audioRecorder.state === "recording") {
-      this.audioRecorder.stop();
-      console.log("Recording stopped");
+        this.recognition.onend = () => {
+            console.log('Final Transcript: ', this.transcript);
+        };
     }
-  }
 
+    startRecording() {
+        this.transcript = '';
+        this.recognition.start();
+        console.log('Recording started.');
+    }
+
+    stopRecording() {
+        if (this.recognition) {
+            this.recognition.stop();
+        }
+    }
 }
   

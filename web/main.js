@@ -99,7 +99,7 @@ function toggleGameLoop() {
 }
 
 let removeCallout = false;
-let editCalloutName = true;
+let editCalloutName = false;
 mapImage.addEventListener('click', function(event) {
     const rect = this.getBoundingClientRect();
     const x = event.clientX - rect.left; // X coordinate relative to the image
@@ -145,12 +145,15 @@ mapImage.addEventListener('click', function(event) {
     }
 });
 
-let addCallout = false;
+let addCallout = true;
 function initSelectCalloutLocation() {
 
     // Code to edit callout boxes
     let topX, topY, bottomX, bottomY;
+    recorder = new micInput();
+
     mapImage.addEventListener('mousedown', function(event) {
+        recorder.startRecording();
         if (addCallout) {
             const rect = this.getBoundingClientRect();
             topX = event.clientX - rect.left;
@@ -159,6 +162,7 @@ function initSelectCalloutLocation() {
     });
 
     mapImage.addEventListener('mouseup', function(event) {
+        recorder.stopRecording();
         if (addCallout) {
             const rect = this.getBoundingClientRect();
             bottomX = event.clientX - rect.left;
