@@ -1,8 +1,6 @@
 const mapImage = document.getElementById('mapImage');
 const svgContainer = document.getElementById('svgContainer');
 
-let speech_to_text = new MicInput();
-
 let displayedCallouts = {};
 let calloutStack = [];
 
@@ -163,6 +161,7 @@ function initSelectCalloutLocation() {
     // Code to edit callout boxes
     let topX, topY, bottomX, bottomY;
 
+    // Find image rectangle
     mapImage.addEventListener('mousedown', function(event) {
         if (addCallout) {
             const rect = this.getBoundingClientRect();
@@ -200,15 +199,22 @@ function initSelectCalloutLocation() {
     });
 }
 
+
 let isStarted = false;
 function setVoiceCalloutHotkey(key) {
+    let speechToText = new MicInput();
+
+    function checkForCorrectCallout() {
+
+    }
+
     document.addEventListener('keydown', (event) => {
         if (!isStarted) {
 
             // Check if the key pressed is the 's' key for start recording
             if (event.key === key) {
                 isStarted = true;
-                speech_to_text.startRecording();
+                speechToText.startRecording();
             }
         }
     });
@@ -222,9 +228,19 @@ function setVoiceCalloutHotkey(key) {
                 // Wait 300ms before stopping recording 
                 setTimeout(() => {
                     isStarted = false;
-                    speech_to_text.stopRecording();
+                    speechToText.stopRecording();
                 }, 300);
             }
+        }
+    });
+
+    // Gets words in the speech transcript
+    const wordsInTranscript = speechToText.getSpeechTranscript().split(' ');
+
+    // Check if any words appear in callout
+    wordsInTranscript.forEach(curWord => {
+        if (CALLOUT_NAME.toLocaleLowerCase().includes(curWord.toLocaleLowerCase())) {
+            // Change map displayed
         }
     });
 }
