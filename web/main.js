@@ -48,7 +48,9 @@ function drawMapCallouts() {
 
     // Loop and display all keys in json
     for (const callout in displayedCallouts) {
-        var points = displayedCallouts[callout];
+        if (callout !== null) {
+            var points = displayedCallouts[callout];
+        }
         addCalloutText(callout, points[0], points[1], points[2], points[3]);
     }
 }
@@ -61,7 +63,7 @@ function clearMapText() {
 }
 
 let gameRunning = false;
-let calloutData = {}; 
+let calloutLocation = []; 
 function toggleGameLoop() {
     gameRunning = !gameRunning;
     document.getElementById('gameButton').innerText = gameRunning ? 'Stop Game' : 'Start Game';
@@ -76,14 +78,15 @@ function toggleGameLoop() {
         clearMapText();
         
         // Get the Callout
-        eel.get_random_callout(currentMap)(function(callout) {
+        eel.get_random_callout(currentMap)
+        (function(callout) {
             if (callout) {
                 // Display the callout name and store the data
                 document.getElementById('calloutDisplay').innerText = `${callout[0]}`;
-                calloutData = callout[1];
+                calloutLocation = callout[1];
             } else {
                 document.getElementById('calloutDisplay').innerText = "No callout found";
-                calloutData = {};  // Reset the data if none found
+                calloutLocation = [];  // Reset the data if none found
             }
         });
 
@@ -100,8 +103,42 @@ function toggleGameLoop() {
     }
 }
 
-let removeCallout = false;
-let editCalloutName = false;
+function removeCallout() {
+    // Loop over callouts and find the one at clicked location
+    for (const key in displayedCallouts) {
+        const points = displayedCallouts[key];
+
+        // Checks if it is the current callout and removes callout if so
+        if (x >= points[0] && y >= points[1] && x <= points[2] && y <= points[3]) {
+            delete displayedCallouts[key];
+            clearMapText();
+            drawMapCallouts();
+            return;
+        }
+    }
+}
+
+function editCallout() {
+    // Loop over callouts and find the one at clicked location
+    for (const key in displayedCallouts) {
+        const points = displayedCallouts[key];
+
+        // Checks if it is the current callout and changes name if so
+        if (x >= points[0] && y >= points[1] && x <= points[2] && y <= points[3]) {
+            const calloutName = prompt("Enter a new callout name:")
+            if (calloutName !== null) {
+                displayedCallouts[calloutName] = displayedCallouts[key];
+                delete displayedCallouts[key];
+                clearMapText();
+                drawMapCallouts();
+            }
+            return;
+        }
+    }
+}
+
+let shouldRemoveCallout = false;
+let shouldEditCallout = false;
 mapImage.addEventListener('click', function(event) {
     const rect = this.getBoundingClientRect();
     const x = event.clientX - rect.left; // X coordinate relative to the image
@@ -112,38 +149,11 @@ mapImage.addEventListener('click', function(event) {
         // Send coordinates to Python only if the game is running
         eel.receive_coordinates(x, y);
     }
-    else if (removeCallout) {
-        // Loop over callouts and find the one at clicked location
-        for (const key in displayedCallouts) {
-            const points = displayedCallouts[key];
-
-            // Checks if it is the current callout and removes callout if so
-            if (x >= points[0] && y >= points[1] && x <= points[2] && y <= points[3]) {
-                delete displayedCallouts[key];
-                clearMapText();
-                drawMapCallouts();
-                return;
-            }
-        }
+    else if (shouldRemoveCallout) {
+        removeCallout();
     }
-    else if (editCalloutName) {
-
-        // Loop over callouts and find the one at clicked location
-        for (const key in displayedCallouts) {
-            const points = displayedCallouts[key];
-
-            // Checks if it is the current callout and changes name if so
-            if (x >= points[0] && y >= points[1] && x <= points[2] && y <= points[3]) {
-                const calloutName = prompt("Enter a new callout name:")
-                if (calloutName !== null) {
-                    displayedCallouts[calloutName] = displayedCallouts[key];
-                    delete displayedCallouts[key];
-                    clearMapText();
-                    drawMapCallouts();
-                }
-                return;
-            }
-        }
+    else if (shouldEditCallout) {
+        editCallout();
     }
 });
 
@@ -219,14 +229,24 @@ function setVoiceCalloutHotkey(key) {
     });
 }
 
-let isFirstLoad = true;
-mapImage.addEventListener('load', () => {
-    if (isFirstLoad) {
-        updateMapImage();
-        isFirstLoad = false;
+
+function ensureMapOnBottom() {
+    if (svgContainer.firstChild !== mapImage) {
+        svgContainer.removeChild(mapImage);
+        svgContainer.insertBefore(mapImage, svgContainer.firstChild);
     }
+}
+
+mapImage.addEventListener('onload', () => {
     clearMapText();
     drawMapCallouts();
+    ensureMapOnBottom();
+});
+
+mapImage.addEventListener('load', () => {
+    clearMapText();
+    drawMapCallouts();
+    ensureMapOnBottom();
 });
 
 window.onload = () => {
