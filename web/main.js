@@ -1,8 +1,9 @@
 const mapImage = document.getElementById('mapImage');
 const svgContainer = document.getElementById('svgContainer');
+const saveButton = document.getElementById('saveButton');
 
 let displayedCallouts = {};
-let calloutStack = [];
+let calloutTextObjectStack = [];
 
 function updateMapImage() {
     const selectedMap = document.getElementById('mapSelector').value;
@@ -39,7 +40,7 @@ function addCalloutText(text, topX, topY, bottomX, bottomY) {
     }
 
     svgContainer.appendChild(textElement);
-    calloutStack.push(textElement);
+    calloutTextObjectStack.push(textElement);
 }
 
 function drawMapCallouts() {
@@ -55,8 +56,8 @@ function drawMapCallouts() {
 
 // Removes all text on the image
 function clearMapText() {
-    while (calloutStack.length > 0) {
-        svgContainer.removeChild(calloutStack.pop());
+    while (calloutTextObjectStack.length > 0) {
+        svgContainer.removeChild(calloutTextObjectStack.pop());
     }
 }
 
@@ -116,13 +117,13 @@ function removeCallout() {
     }
 }
 
-function editCallout() {
+function editCallout(xCoord, yCoord) {
     // Loop over callouts and find the one at clicked location
     for (const key in displayedCallouts) {
         const points = displayedCallouts[key];
 
         // Checks if it is the current callout and changes name if so
-        if (x >= points[0] && y >= points[1] && x <= points[2] && y <= points[3]) {
+        if (xCoord >= points[0] && yCoord >= points[1] && xCoord <= points[2] && yCoord <= points[3]) {
             const calloutName = prompt("Enter a new callout name:")
             if (calloutName !== null) {
                 displayedCallouts[calloutName] = displayedCallouts[key];
@@ -135,10 +136,22 @@ function editCallout() {
     }
 }
 
+// Saves any changes to callouts
+function saveCallouts() {
+    const calloutDictString = JSON.stringify(displayedCallouts, null, 2);
+
+    // Write the new callout dictionary to file
+    const currentMap = document.getElementById('mapSelector').value;
+
+    const calloutJsonLocation = "./web/settings/" + currentMap + "_callouts.json"
+    
+    eel.save_json(calloutDictString, calloutJsonLocation);
+}
+
 let shouldRemoveCallout = false;
-let shouldEditCallout = false;
-mapImage.addEventListener('click', function(event) {
-    const rect = this.getBoundingClientRect();
+let shouldEditCallout = true;
+mapImage.addEventListener('click', (event) => {
+    const rect = mapImage.getBoundingClientRect();
     const x = event.clientX - rect.left; // X coordinate relative to the image
     const y = event.clientY - rect.top;  // Y coordinate relative to the image
     console.log(`Clicked at x: ${x}, y: ${y}`);
@@ -151,11 +164,11 @@ mapImage.addEventListener('click', function(event) {
         removeCallout();
     }
     else if (shouldEditCallout) {
-        editCallout();
+        editCallout(x, y);
     }
 });
 
-let addCallout = true;
+let addCallout = false;
 function initSelectCalloutLocation() {
 
     // Code to edit callout boxes
@@ -190,6 +203,7 @@ function initSelectCalloutLocation() {
                 bottomY = tmp;
             }
 
+            // Adds callout text
             if (calloutName !== null) {
                 addCalloutText(calloutName, topX, topY, bottomX, bottomY);
                 displayedCallouts[calloutName] = [topX, topY, bottomX, bottomY];
@@ -203,10 +217,6 @@ function initSelectCalloutLocation() {
 let isStarted = false;
 function setVoiceCalloutHotkey(key) {
     let speechToText = new MicInput();
-
-    function checkForCorrectCallout() {
-
-    }
 
     document.addEventListener('keydown', (event) => {
         if (!isStarted) {
@@ -232,16 +242,16 @@ function setVoiceCalloutHotkey(key) {
                 }, 300);
             }
         }
-    });
 
-    // Gets words in the speech transcript
-    const wordsInTranscript = speechToText.getSpeechTranscript().split(' ');
+        // // Gets words in the speech transcript
+        // const wordsInTranscript = speechToText.getSpeechTranscript().split(' ');
 
-    // Check if any words appear in callout
-    wordsInTranscript.forEach(curWord => {
-        if (CALLOUT_NAME.toLocaleLowerCase().includes(curWord.toLocaleLowerCase())) {
-            // Change map displayed
-        }
+        // // Check if any words appear in callout
+        // wordsInTranscript.forEach(curWord => {
+        //     if (CALLOUT_NAME.toLocaleLowerCase().includes(curWord.toLocaleLowerCase())) {
+        //         // Change map displayed
+        //     }
+        // });
     });
 }
 
