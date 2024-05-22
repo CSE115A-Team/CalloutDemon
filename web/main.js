@@ -30,15 +30,17 @@ function addCalloutText(text, topX, topY, bottomX, bottomY) {
     textElement.setAttribute("y", topY + boxHeightOffset);
     textElement.setAttribute("dominant-baseline", "middle");
     textElement.setAttribute("text-anchor", "middle");
-    textElement.setAttribute("font-family", "Arial");
+    textElement.setAttribute("font-family", "Times New Roman");
     textElement.setAttribute("font-size", "10px");
     textElement.setAttribute("font-weight", "bold");
-    textElement.setAttribute("style", "user-select: none;");
+    textElement.setAttribute("style", "user-select: none; fill: white;");
     textElement.setAttribute("visibility", "visible");
     textElement.setAttribute("pointer-events", "none");
 
     if (boxHeightOffset > boxWidthOffset) {
-        textElement.setAttribute("style", "writing-mode: vertical-rl; user-select: none;");
+        textElement.setAttribute("writing-mode", "vertical-rl");
+        textElement.setAttribute("font-family", "Times New Roman"); 
+        textElement.setAttribute("style", "user-select: none; fill: white; writing-mode: vertical-rl; font-family: Times New Roman;");
     }
 
     svgContainer.appendChild(textElement);
@@ -77,16 +79,7 @@ function toggleGameLoop() {
         clearMapText();
         
         // Get the Callout
-        eel.get_random_callout(currentMap)(function(callout) {
-            if (callout) {
-                // Display the callout name and store the data
-                document.getElementById('calloutDisplay').innerText = `${callout[0]}`;
-                calloutData = callout[1];
-            } else {
-                document.getElementById('calloutDisplay').innerText = "No callout found";
-                calloutData = {};  // Reset the data if none found
-            }
-        });
+        getNextCallout(currentMap);
 
     } else {
         // Enable the dropdown and update its appearance
@@ -114,6 +107,20 @@ function setAddFlag() {
     editCallout = false;
 }
 
+function getNextCallout(currentMap) {
+    eel.get_random_callout(currentMap)(function(callout) {
+        if (callout) {
+            // Display the callout name and store the data
+            document.getElementById('calloutDisplay').innerText = `${callout[0]}`;
+            calloutData = callout[1];
+            console.log("calloutData:", calloutData); // Print callout[1] to the console
+        } else {
+            document.getElementById('calloutDisplay').innerText = "No callout found";
+            calloutData = {};  // Reset the data if none found
+        }
+    });
+}
+
 mapImage.addEventListener('click', function(event) {
     const rect = this.getBoundingClientRect();
     const x = event.clientX - rect.left; // X coordinate relative to the image
@@ -123,6 +130,13 @@ mapImage.addEventListener('click', function(event) {
     if (gameRunning) {
         // Send coordinates to Python only if the game is running
         eel.receive_coordinates(x, y);
+        if (x >= calloutData[0] && y >= calloutData[1] && x <= calloutData[2] && y <= calloutData[3]) {
+            console.log("Correct callout clicked!");
+            // Get the next callout
+            getNextCallout(document.getElementById('mapSelector').value);
+        } else {
+            console.log("Incorrect area, try again.");
+        }
     }
     else if (removeCallout) {
         removeCallout = false
