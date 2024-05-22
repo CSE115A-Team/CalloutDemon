@@ -12,6 +12,7 @@ function toggleGameLoop() {
     document.getElementById('gameButton').innerText = gameRunning ? 'Stop Game' : 'Start Game';
     const mapImage = document.getElementById('mapImage');
     const currentMap = document.getElementById('mapSelector').value;
+    const gameMode = document.getElementById('gamemodeSelector').value;
 
     if (gameRunning) {
         // Disable Dropdown Menu
