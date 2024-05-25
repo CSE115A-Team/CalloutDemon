@@ -21,7 +21,14 @@ function toggleGameLoop() {
         mapSelector.classList.add('disabled-dropdown');   
         gamemodeSelector.classList.add('disabled-dropdown');    
 
+        if (gameMode === 'Vocal') {
+            eel.get_random_image('images/maps/')(function(imagePath) {
+                if (imagePath) {
+                    mapImage.src = imagePath;
+                }
+            });
         // Switch Map to unlabeled
+        } else {
         let unlabeledVersion = currentMap.replace('_labeled', '_unlabeled');
         mapImage.src = 'images/maps/' + unlabeledVersion;
         
@@ -36,7 +43,7 @@ function toggleGameLoop() {
                 calloutData = {};  // Reset the data if none found
             }
         });
-
+    }
     } else {
         // Enable the dropdown and update its appearance
         mapSelector.disabled = false;
