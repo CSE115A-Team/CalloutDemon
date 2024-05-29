@@ -135,8 +135,6 @@ mapImage.addEventListener('click', function (event) {
     console.log(`Clicked at x: ${x}, y: ${y}`);
 
     if (gameRunning) {
-        // Send coordinates to Python only if the game is running
-        eel.receive_coordinates(x, y);
         if (x >= calloutData[0] && y >= calloutData[1] && x <= calloutData[2] && y <= calloutData[3]) {
             clearMapText();
             // Reset failed attempts counter
