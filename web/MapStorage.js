@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs you need
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 export class MapStorage {
 
@@ -38,5 +38,15 @@ export class MapStorage {
             console.error('Error getting document:', error);
             throw error;
         });
+    }
+
+    // Sets map data at a certain UUID
+    setMapDataByUUID(map, data, uuid) {
+        const docRef = doc(this.db, 'users', uuid);
+
+        // Promise for async calls
+        return setDoc(docRef, {
+            [map]: JSON.stringify(data)
+          }, { merge: true });
     }
 }

@@ -159,15 +159,8 @@ function editCallout(xCoord, yCoord) {
 
 // Saves any changes to callouts
 saveButton.addEventListener('click', () => {
-// function saveCallouts() {
-    const calloutDictString = JSON.stringify(displayedCallouts, null, 2);
-
-    // Write the new callout dictionary to file
-    const currentMap = document.getElementById('mapSelector').value;
-
-    const calloutJsonLocation = "./web/settings/" + currentMap + "_callouts.json"
-    
-    eel.save_json(calloutDictString, calloutJsonLocation);
+    const selectedMap = mapSelector.value;
+    mapStorage.setMapDataByUUID(selectedMap, displayedCallouts, 'default')
 });
 
 let shouldRemoveCallout = false;
