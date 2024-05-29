@@ -1,19 +1,35 @@
+import { MapStorage } from './MapStorage.js';
+
 const mapImage = document.getElementById('mapImage');
 const svgContainer = document.getElementById('svgContainer');
+const startButton = document.getElementById('startButton');
 const saveButton = document.getElementById('saveButton');
+const mapSelector = document.getElementById('mapSelector');
+const calloutDisplayText = document.getElementById('calloutDisplay');
 
-let displayedCallouts = {};
+let displayedCallouts;
 let calloutTextObjectStack = [];
 
+const mapStorage = new MapStorage();
+
 function updateMapImage() {
-    const selectedMap = document.getElementById('mapSelector').value;
+    const selectedMap = mapSelector.value;
     console.log('Selected image path:', 'images/maps/' + selectedMap + '_unlabeled.png');
     mapImage.setAttribute("xlink:href", 'images/maps/' + selectedMap + '_unlabeled.png');
 
-    calloutJson = fetch('settings/' + selectedMap + '_callouts.json')
-        .then((response) => response.json())
-        .then((json) => displayedCallouts = json);
+    mapStorage.getMapDataByUUID(selectedMap, 'default')
+    .then((data) => {
+        displayedCallouts = data;
+        drawMapCallouts();
+    })
+    .catch((error) => {
+        console.error("Error getting map data:", error);
+    });
 }
+
+mapSelector.addEventListener('change', () => {
+    updateMapImage();
+});
 
 function addCalloutText(text, topX, topY, bottomX, bottomY) {
 
@@ -62,10 +78,10 @@ function clearMapText() {
 }
 
 let gameRunning = false;
-let calloutLocation = []; 
+let calloutLocation = [];
 function toggleGameLoop() {
     gameRunning = !gameRunning;
-    document.getElementById('gameButton').innerText = gameRunning ? 'Stop Game' : 'Start Game';
+    startButton.innerText = gameRunning ? 'Stop Game' : 'Start Game';
     const currentMap = document.getElementById('mapSelector').value;
 
     if (gameRunning) {
@@ -77,17 +93,18 @@ function toggleGameLoop() {
         clearMapText();
         
         // Get the Callout
-        eel.get_random_callout(currentMap)
-        (function(callout) {
-            if (callout) {
-                // Display the callout name and store the data
-                document.getElementById('calloutDisplay').innerText = `${callout[0]}`;
-                calloutLocation = callout[1];
-            } else {
-                document.getElementById('calloutDisplay').innerText = "No callout found";
-                calloutLocation = [];  // Reset the data if none found
-            }
-        });
+        var calloutKeys = Object.keys(displayedCallouts);
+        var randomKey = calloutKeys[Math.floor(Math.random() * calloutKeys.length)];
+        console.log(randomKey);
+        if (randomKey) {
+            // Display the callout name and store the data
+            calloutDisplayText.innerText = `${randomKey}`;
+            calloutLocation = displayedCallouts[randomKey];
+        } else {
+            calloutDisplayText.innerText = "No callout found";
+            calloutLocation = [];  // Reset the data if none found
+        }
+        console.log(calloutLocation);
 
     } else {
         // Enable the dropdown and update its appearance
@@ -95,12 +112,16 @@ function toggleGameLoop() {
         mapSelector.classList.remove('disabled-dropdown');
 
         // Remove callout text
-        document.getElementById('calloutDisplay').innerText = "";
+        calloutDisplayText.innerText = "";
 
         // Switch back to the labeled version 
         drawMapCallouts();
     }
-}
+};
+
+startButton.addEventListener('click', () => {
+    toggleGameLoop();
+});
 
 function removeCallout() {
     // Loop over callouts and find the one at clicked location
@@ -137,7 +158,8 @@ function editCallout(xCoord, yCoord) {
 }
 
 // Saves any changes to callouts
-function saveCallouts() {
+saveButton.addEventListener('click', () => {
+// function saveCallouts() {
     const calloutDictString = JSON.stringify(displayedCallouts, null, 2);
 
     // Write the new callout dictionary to file
@@ -146,7 +168,7 @@ function saveCallouts() {
     const calloutJsonLocation = "./web/settings/" + currentMap + "_callouts.json"
     
     eel.save_json(calloutDictString, calloutJsonLocation);
-}
+});
 
 let shouldRemoveCallout = false;
 let shouldEditCallout = true;
@@ -265,13 +287,11 @@ function ensureMapOnBottom() {
 
 mapImage.addEventListener('onload', () => {
     clearMapText();
-    drawMapCallouts();
     ensureMapOnBottom();
 });
 
 mapImage.addEventListener('load', () => {
     clearMapText();
-    drawMapCallouts();
     ensureMapOnBottom();
 });
 
