@@ -17,6 +17,8 @@ let displayedCallouts = {};
 let calloutTextObjectStack = [];
 
 function updateMapImage() {
+    clearMapText();
+    
     const selectedMap = mapSelector.value;
     console.log('Selected image path:', 'images/maps/' + selectedMap + '_unlabeled.png');
     mapImage.setAttribute("xlink:href", 'images/maps/' + selectedMap + '_unlabeled.png');
