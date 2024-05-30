@@ -27,11 +27,6 @@ def get_random_callout(map_name):
 @eel.expose
 def receive_coordinates(x, y):
     print(f"Clicked at x: {x}, y: {y}")
-    
-@eel.expose
-def save_json(json_string, json_path):
-    with open(json_path, 'w') as file:
-        file.write(json_string)
 
 if __name__ == "__main__":
-    eel.start('index.html', size=(800, 800))  # Start the Eel application with the specified window size
+    eel.start('index.html', size=(800, 900))  # Start the Eel application with the specified window size
