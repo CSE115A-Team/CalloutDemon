@@ -13,11 +13,8 @@ const delCalloutButton = document.getElementById('delButton');
 const firebaseConnection = new FirebaseAppConnection();
 const mapStorage = new MapStorage(firebaseConnection.getApp());
 
-const mapImage = document.getElementById('mapImage');
-const svgContainer = document.getElementById('svgContainer');
-
 let displayedCallouts = {};
-let calloutStack = [];
+let calloutTextObjectStack = [];
 
 function updateMapImage() {
     const selectedMap = mapSelector.value;
@@ -115,20 +112,25 @@ function toggleGameLoop() {
     }
 }
 
+startButton.addEventListener('click', () => {
+    toggleGameLoop();
+});
+
 
 let shouldRemoveCallout = false;
 let shouldEditCallout = true;
 let shouldAddCallout = false;
 
-function setRemoveFlag() {
+delCalloutButton.addEventListener('click', () => {
     shouldRemoveCallout = true;
-}
-function setAddFlag() {
+});
+
+addCalloutButton.addEventListener('click', () => {
     shouldAddCallout = true;
     shouldEditCallout = false;
-}
+});
 
-function getNextCallout(currentMap) {
+function getNextCallout() {
     var calloutKeys = Object.keys(displayedCallouts);
     var randomKey = calloutKeys[Math.floor(Math.random() * calloutKeys.length)];
     console.log(randomKey);
@@ -190,7 +192,7 @@ mapImage.addEventListener('click', function(event) {
     console.log(`Clicked at x: ${x}, y: ${y}`);
 
     if (gameRunning) {
-        if (x >= calloutData[0] && y >= calloutData[1] && x <= calloutData[2] && y <= calloutData[3]) {
+        if (x >= calloutLocation[0] && y >= calloutLocation[1] && x <= calloutLocation[2] && y <= calloutLocation[3]) {
             console.log("Correct callout clicked!");
 
             // Get the next callout
@@ -201,10 +203,12 @@ mapImage.addEventListener('click', function(event) {
     }
     else if (shouldRemoveCallout) {
         removeCallout();
+        shouldRemoveCallout = false;
     }
     else if (shouldEditCallout) {
         editCallout(x, y);
     }
+    shouldEditCallout = true;
 });
 
 function initSelectCalloutLocation() {
@@ -247,6 +251,8 @@ function initSelectCalloutLocation() {
                 displayedCallouts[calloutName] = [topX, topY, bottomX, bottomY];
                 console.log(displayedCallouts);
             } 
+
+            shouldAddCallout = false;
         }
     });
 }
@@ -291,14 +297,6 @@ function setVoiceCalloutHotkey(key) {
         // });
     });
 }
-
-mapImage.addEventListener('onload', () => {
-    clearMapText();
-});
-
-mapImage.addEventListener('load', () => {
-    clearMapText();
-});
 
 window.onload = () => {
     initSelectCalloutLocation();
