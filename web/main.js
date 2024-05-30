@@ -1,4 +1,5 @@
 import { MapStorage } from './MapStorage.js';
+import { FirebaseAppConnection } from './FirebaseAppConnection.js';
 
 const mapImage = document.getElementById('mapImage');
 const svgContainer = document.getElementById('svgContainer');
@@ -7,10 +8,12 @@ const saveButton = document.getElementById('saveButton');
 const mapSelector = document.getElementById('mapSelector');
 const calloutDisplayText = document.getElementById('calloutDisplay');
 
+const firebaseConnection = new FirebaseAppConnection();
+const mapStorage = new MapStorage(firebaseConnection.getApp());
+
 let displayedCallouts;
 let calloutTextObjectStack = [];
 
-const mapStorage = new MapStorage();
 
 function updateMapImage() {
     const selectedMap = mapSelector.value;
