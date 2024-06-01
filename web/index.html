@@ -44,17 +44,17 @@
     </div>
 <script type ="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-app.js";
-    import { CalloutDemon, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
+    import { GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, getAuth } from "https://www.gstatic.com/firebasejs/10.0.0/firebase-auth.js";
 
     const firebaseConfig = {
-    apiKey: "AIzaSyDvxstB29Ow7SbYTJbp7uVjIJC052I7ghA",
-    authDomain: "calloutdemon.firebaseapp.com",
-    projectId: "calloutdemon",
-    storageBucket: "calloutdemon.appspot.com",
-    messagingSenderId: "150863965910",
-    appId: "1:150863965910:web:7db0cc9aa1644c340fa377",
-    measurementId: "G-PKX396G4BV"
-};
+        apiKey: "AIzaSyDgFO86XXDuvyFrSPSmCA8YC8XcucAsVYw",
+        authDomain: "callout-demon.firebaseapp.com",
+        projectId: "callout-demon",
+        storageBucket: "callout-demon.appspot.com",
+        messagingSenderId: "968725959431",
+        appId: "1:968725959431:web:40696e16e53bf0f25deba2",
+        measurementId: "G-SSS8LJWJVR"
+    };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth();
@@ -70,20 +70,25 @@
     message.style.display = "none";
 
     const userSignIn = async() => {
-    signInWithPopup(auth, provider)
-    .then((result) => {
-        const user = result.user
-        console.log(user);
-    }).catch((error) => {
-        const errorCode = error.code;
-        const errorMessage = error.message
-    })
-}
+        signInWithPopup(auth, provider)
+        .then((result) => {
+            const user = result.user
+            console.log(user);
+            console.log(user.uid);
+        }).catch((error) => {
+            const errorCode = error.code;
+            const errorMessage = error.message
+        });
+    }
+
+    function getUserUUID() {
+        return user.uid;
+    }
 
     const userSignOut = async() => {
     signOut(auth).then(() => {
         alert("You have signed out successfully!");
-    }).catch((error) => {})
+    }).catch((error) => {});
 }
 
     onAuthStateChanged(auth, (user) => {
