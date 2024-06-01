@@ -5,7 +5,6 @@ import os
 import wave
 import io
 import base64
-import ffmpeg
 
 eel.init('web')  # Initialize Eel with the 'web' directory
 
