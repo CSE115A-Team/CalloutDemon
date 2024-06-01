@@ -87,9 +87,7 @@ function clearMapText() {
 
 let gameRunning = false;
 let calloutName;
-let calloutData = {};
-let failedAttempts = 0;
-const maxFailedAttempts = 3; // Set the number of allowed failed attempts
+let calloutLocation;
 
 function toggleGameLoop() {
     gameRunning = !gameRunning;
@@ -147,6 +145,7 @@ function getNextCallout() {
     console.log(randomKey);
     if (randomKey) {
         // Display the callout name and store the data
+        calloutName = randomKey;
         calloutDisplayText.innerText = `${randomKey}`;
         calloutLocation = displayedCallouts[randomKey];
     } else {
@@ -196,6 +195,8 @@ function editCallout(xCoord, yCoord) {
     }
 }
 
+let failedAttempts = 0;
+const maxFailedAttempts = 3; // Set the number of allowed failed attempts
 mapImage.addEventListener('click', function(event) {
     const rect = this.getBoundingClientRect();
     const x = event.clientX - rect.left; // X coordinate relative to the image
@@ -203,17 +204,20 @@ mapImage.addEventListener('click', function(event) {
     console.log(`Clicked at x: ${x}, y: ${y}`);
 
     if (gameRunning) {
-        if (x >= calloutData[0] && y >= calloutData[1] && x <= calloutData[2] && y <= calloutData[3]) {
+        if (x >= calloutLocation[0] && y >= calloutLocation[1] && x <= calloutLocation[2] && y <= calloutLocation[3]) {
             clearMapText();
             // Reset failed attempts counter
             failedAttempts = 0;
             // Get the next callout
             getNextCallout(document.getElementById('mapSelector').value);
-        } else {
+        } 
+        else {
             failedAttempts++;
+            console.log(failedAttempts);
             if (failedAttempts >= maxFailedAttempts) {
-                // Highlight the correct callout area
-                addCalloutText(calloutName, calloutData[0], calloutData[1], calloutData[2], calloutData[3]);
+
+                // Show the correct callout area
+                addCalloutText(calloutName, calloutLocation[0], calloutLocation[1], calloutLocation[2], calloutLocation[3]);
             }
         }
     }
