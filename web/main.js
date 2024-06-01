@@ -61,6 +61,7 @@ function clearMapText() {
     while (calloutStack.length > 0) {
         svgContainer.removeChild(calloutStack.pop());
     }
+    console.log(calloutStack);
 }
 
 let gameRunning = false;
@@ -77,28 +78,25 @@ function toggleGameLoop() {
 
     if (gameRunning) {
         // Disable Dropdown Menu
-        document.getElementById('mapSelector').disabled = true;
         document.getElementById('gamemodeSelector').disabled = true;
-        document.getElementById('mapSelector').classList.add('disabled-dropdown');   
         document.getElementById('gamemodeSelector').classList.add('disabled-dropdown');    
 
+        mapSelector.disabled = true;
+        mapSelector.classList.add('disabled-dropdown');
+        clearMapText();
+
         if (gameMode === 'Vocal') {
-            eel.get_random_image(currentMap.replace('_labeled.png', ''))(function(imagePath) {
+            eel.get_random_image(currentMap)((imagePath) => {
                 console.log('Received image path:', imagePath);
                 if (imagePath) {
-                    const fullPath = 'images/maps/Vocal/' + currentMap.split('_')[0].toLowerCase() + '/' + imagePath; 
+                    const fullPath = 'images/maps/Vocal/' + currentMap + '/' + imagePath; 
                     console.log('Full image path:', fullPath);
-                    mapImage.src = fullPath;
+                    mapImage.setAttribute("xlink:href", fullPath);
                 } else {
-                    mapImage.src = 'images/maps/' + currentMap;
+                    updateMapImage();
                 }
             });
         } else {
-            mapSelector.disabled = true;
-            mapSelector.classList.add('disabled-dropdown');
-
-            // Clear callouts 
-            clearMapText();
 
             // Reset failed attempts counter
             failedAttempts = 0;
@@ -116,7 +114,10 @@ function toggleGameLoop() {
         // Remove callout text
         document.getElementById('calloutDisplay').innerText = "";
 
-        // Switch back to the labeled version 
+        // Switch back to the map
+        if (gameMode === 'Vocal') {
+            updateMapImage();
+        }
         drawMapCallouts();
     }
 }
@@ -248,16 +249,6 @@ function initSelectCalloutLocation() {
         }
     });
 }
-
-let isFirstLoad = true;
-mapImage.addEventListener('load', () => {
-    if (isFirstLoad) {
-        updateMapImage();
-        isFirstLoad = false;
-    }
-    clearMapText();
-    drawMapCallouts();
-});
 
 window.onload = () => {
     initSelectCalloutLocation();

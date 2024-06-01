@@ -25,11 +25,8 @@ def get_random_image(map_name):
     images_directory = os.path.join('web', 'images', 'maps', 'Vocal', map_name.lower())
     try:
         images = os.listdir(images_directory)
-        print(f"Accessing directory: {images_directory}")
-        print(f"Found images: {images}")
         if images:
             selected_image = random.choice(images)
-            print(f"Selected image: {selected_image}")
             return selected_image
         else:
             return None
