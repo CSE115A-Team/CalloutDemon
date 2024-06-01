@@ -24,7 +24,7 @@ function toggleGameLoop() {
             eel.get_random_image(currentMap.replace('_labeled.png', ''))(function(imagePath) {
                 console.log('Received image path:', imagePath);
                 if (imagePath) {
-                    const fullPath = 'images/maps/Vocal/' + imagePath;
+                    const fullPath = 'images/maps/Vocal/' + currentMap.split('_')[0].toLowerCase() + '/' + imagePath; 
                     console.log('Full image path:', fullPath);
                     mapImage.src = fullPath;
                 } else {
