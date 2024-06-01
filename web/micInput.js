@@ -1,7 +1,7 @@
 // Create object to create the audio stream
 // Use startRecording() to start recording
 // Use stopRecording() to end recording
-class MicInput {
+export class MicInput {
     constructor() {
         this.audioStream = null;
         this.audioRecorder = null;

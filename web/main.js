@@ -1,3 +1,4 @@
+import { MicInput } from './MicInput.js';
 import { MapStorage } from './MapStorage.js';
 import { FirebaseAppConnection } from './FirebaseAppConnection.js';
 
@@ -50,15 +51,15 @@ function addCalloutText(text, topX, topY, bottomX, bottomY) {
     textElement.setAttribute("y", topY + boxHeightOffset);
     textElement.setAttribute("dominant-baseline", "middle");
     textElement.setAttribute("text-anchor", "middle");
-    textElement.setAttribute("font-family", "Arial");
+    textElement.setAttribute("font-family", "Sitka Small");
     textElement.setAttribute("font-size", "10px");
     textElement.setAttribute("font-weight", "bold");
-    textElement.setAttribute("style", "user-select: none;");
+    textElement.setAttribute("style", "user-select: none; fill: white;");
     textElement.setAttribute("visibility", "visible");
     textElement.setAttribute("pointer-events", "none");
 
     if (boxHeightOffset > boxWidthOffset) {
-        textElement.setAttribute("style", "writing-mode: vertical-rl; user-select: none;");
+        textElement.setAttribute("writing-mode", "vertical-rl");
     }
 
     svgContainer.appendChild(textElement);
