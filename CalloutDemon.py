@@ -38,4 +38,4 @@ def get_random_image(map_name):
         return None
 
 if __name__ == "__main__":
-    eel.start('index.html', size=(800, 800))  # Start the Eel application with the specified window size
+    eel.start('index.html', size=(800, 900))  # Start the Eel application with the specified window size
