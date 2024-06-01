@@ -30,6 +30,7 @@ function updateMapImage() {
         drawMapCallouts();
     })
     .catch((error) => {
+        displayedCallouts = {};
         console.error("Error getting map data:", error);
     });
 }
