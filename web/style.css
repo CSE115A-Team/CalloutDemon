@@ -8,26 +8,28 @@
 }
 
 body {
-    font-family: Arial, sans-serif;
-    text-align: center;
+    font-family: 'Times New Roman', Times, serif;
     margin: 0;
     background-color: var(--bg-color);
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
-    min-height: 100vh;
+    height: 100vh;
+    text-align: center;
+}
+
+.container {
+    display: flex; /* Flexbox for container */
+    flex-direction: column; /* Column direction */
+    align-items: center; /* Center items horizontally */
+    justify-content: center; /* Center items vertically */
+    width: 100%; /* Make container take full width */
+    max-width: 800px; /* Optional: limit the maximum width of the container */
 }
 
 h1 {
     color: var(--text-color);
     margin-bottom: 20px;
-}
-
-.container {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
 }
 
 .inline-container {
@@ -40,7 +42,8 @@ h1 {
 #mapImage {
     width: 500px;  /* Set width to 500 pixels */
     height: 500px; /* Set height to 500 pixels */
-    margin-bottom: 20px;
+    margin: 20px auto; /* Center the map image with margin */
+    display: block; /* Ensure it's treated as a block element */
 }
 
 #calloutDisplay {
