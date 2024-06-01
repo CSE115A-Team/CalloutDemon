@@ -154,13 +154,13 @@ saveButton.addEventListener('click', () => {
     mapStorage.setMapDataByUUID(selectedMap, displayedCallouts, 'default')
 });
 
-function removeCallout() {
+function removeCallout(xCoord, yCoord) {
     // Loop over callouts and find the one at clicked location
     for (const key in displayedCallouts) {
         const points = displayedCallouts[key];
 
         // Checks if it is the current callout and removes callout if so
-        if (x >= points[0] && y >= points[1] && x <= points[2] && y <= points[3]) {
+        if (xCoord >= points[0] && yCoord >= points[1] && xCoord <= points[2] && yCoord <= points[3]) {
             delete displayedCallouts[key];
             clearMapText();
             drawMapCallouts();
@@ -205,7 +205,7 @@ mapImage.addEventListener('click', function(event) {
         }
     }
     else if (shouldRemoveCallout) {
-        removeCallout();
+        removeCallout(x, y);
         shouldRemoveCallout = false;
     }
     else if (shouldEditCallout) {
