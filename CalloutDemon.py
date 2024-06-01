@@ -20,5 +20,19 @@ def get_random_callout(map_name):
         print(f"Failed to read {json_path}: {str(e)}")
         return None
 
+@eel.expose
+def get_random_image(map_name):
+    images_directory = os.path.join('web', 'images', 'maps', 'Vocal', map_name.lower())
+    try:
+        images = os.listdir(images_directory)
+        if images:
+            selected_image = random.choice(images)
+            return selected_image
+        else:
+            return None
+    except Exception as e:
+        print(f"Failed to access directory {images_directory}: {str(e)}")
+        return None
+
 if __name__ == "__main__":
     eel.start('index.html', size=(800, 900))  # Start the Eel application with the specified window size

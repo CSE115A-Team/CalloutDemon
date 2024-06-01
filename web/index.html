@@ -8,6 +8,10 @@
 </head>
 <body>
     <h1>CalloutDemon</h1>
+    <select id="gamemodeSelector" onchange="updateMapImage()">
+        <option>Click</option>
+        <option>Vocal</option>
+    </select>
     <div class="inline-container">
         <select id="mapSelector" onchange="updateMapImage()">
             <option value="ascent">Ascent</option>
@@ -28,6 +32,7 @@
             <image id="mapImage" xlink:href="images/maps/ascent_unlabeled.png" alt="Map Image" style="max-width: 600px; display: block; margin: auto;"/>
         </svg>
     </div>
+  
     <p id="calloutDisplay"></p>
     <div class="inline-container">
         <button id="addButton" onclick="setAddFlag()">Add Callout</button>

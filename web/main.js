@@ -61,6 +61,7 @@ function clearMapText() {
     while (calloutStack.length > 0) {
         svgContainer.removeChild(calloutStack.pop());
     }
+    console.log(calloutStack);
 }
 
 let gameRunning = false;
@@ -73,30 +74,50 @@ function toggleGameLoop() {
     gameRunning = !gameRunning;
     document.getElementById('gameButton').innerText = gameRunning ? 'Stop Game' : 'Start Game';
     const currentMap = document.getElementById('mapSelector').value;
+    const gameMode = document.getElementById('gamemodeSelector').value;
 
     if (gameRunning) {
         // Disable Dropdown Menu
+        document.getElementById('gamemodeSelector').disabled = true;
+        document.getElementById('gamemodeSelector').classList.add('disabled-dropdown');    
+
         mapSelector.disabled = true;
         mapSelector.classList.add('disabled-dropdown');
-
-        // Clear callouts 
         clearMapText();
 
-        // Reset failed attempts counter
-        failedAttempts = 0;
+        if (gameMode === 'Vocal') {
+            eel.get_random_image(currentMap)((imagePath) => {
+                console.log('Received image path:', imagePath);
+                if (imagePath) {
+                    const fullPath = 'images/maps/Vocal/' + currentMap + '/' + imagePath; 
+                    console.log('Full image path:', fullPath);
+                    mapImage.setAttribute("xlink:href", fullPath);
+                } else {
+                    updateMapImage();
+                }
+            });
+        } else {
 
-        // Get the Callout
-        getNextCallout(currentMap);
+            // Reset failed attempts counter
+            failedAttempts = 0;
 
+            // Get the Callout
+            getNextCallout(currentMap);
+        }
     } else {
         // Enable the dropdown and update its appearance
-        mapSelector.disabled = false;
-        mapSelector.classList.remove('disabled-dropdown');
+        document.getElementById('mapSelector').disabled = false;
+        document.getElementById('gamemodeSelector').disabled = false;
+        document.getElementById('mapSelector').classList.remove('disabled-dropdown');
+        document.getElementById('gamemodeSelector').classList.remove('disabled-dropdown');
 
         // Remove callout text
         document.getElementById('calloutDisplay').innerText = "";
 
-        // Switch back to the labeled version 
+        // Switch back to the map
+        if (gameMode === 'Vocal') {
+            updateMapImage();
+        }
         drawMapCallouts();
     }
 }
@@ -228,16 +249,6 @@ function initSelectCalloutLocation() {
         }
     });
 }
-
-let isFirstLoad = true;
-mapImage.addEventListener('load', () => {
-    if (isFirstLoad) {
-        updateMapImage();
-        isFirstLoad = false;
-    }
-    clearMapText();
-    drawMapCallouts();
-});
 
 window.onload = () => {
     initSelectCalloutLocation();
