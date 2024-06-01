@@ -23,9 +23,5 @@ def get_random_callout(map_name):
         print(f"Failed to read {json_path}: {str(e)}")
         return None
 
-@eel.expose
-def receive_coordinates(x, y):
-    print(f"Clicked at x: {x}, y: {y}")
-
 if __name__ == "__main__":
     eel.start('index.html', size=(800, 900))  # Start the Eel application with the specified window size

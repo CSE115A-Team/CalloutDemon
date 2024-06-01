@@ -42,8 +42,8 @@ mapSelector.addEventListener('change', () => {
 function addCalloutText(text, topX, topY, bottomX, bottomY) {
 
     // How much to offset position of label
-    var boxHeightOffset = (bottomY - topY)/2;
-    var boxWidthOffset = (bottomX - topX)/2;
+    var boxHeightOffset = (bottomY - topY) / 2;
+    var boxWidthOffset = (bottomX - topX) / 2;
 
     // Creates text and adds it to svg
     var textElement = document.createElementNS("http://www.w3.org/2000/svg", "text");
@@ -86,7 +86,11 @@ function clearMapText() {
 }
 
 let gameRunning = false;
-let calloutLocation = [];
+let calloutName;
+let calloutData = {};
+let failedAttempts = 0;
+const maxFailedAttempts = 3; // Set the number of allowed failed attempts
+
 function toggleGameLoop() {
     gameRunning = !gameRunning;
     startButton.innerText = gameRunning ? 'Stop Game' : 'Start Game';
@@ -95,11 +99,14 @@ function toggleGameLoop() {
     if (gameRunning) {
         // Disable Dropdown Menu
         mapSelector.disabled = true;
-        mapSelector.classList.add('disabled-dropdown');        
+        mapSelector.classList.add('disabled-dropdown');
 
         // Clear callouts 
         clearMapText();
-        
+
+        // Reset failed attempts counter
+        failedAttempts = 0;
+
         // Get the Callout
         getNextCallout(currentMap);
 
@@ -196,13 +203,18 @@ mapImage.addEventListener('click', function(event) {
     console.log(`Clicked at x: ${x}, y: ${y}`);
 
     if (gameRunning) {
-        if (x >= calloutLocation[0] && y >= calloutLocation[1] && x <= calloutLocation[2] && y <= calloutLocation[3]) {
-            console.log("Correct callout clicked!");
-
+        if (x >= calloutData[0] && y >= calloutData[1] && x <= calloutData[2] && y <= calloutData[3]) {
+            clearMapText();
+            // Reset failed attempts counter
+            failedAttempts = 0;
             // Get the next callout
             getNextCallout(document.getElementById('mapSelector').value);
         } else {
-            console.log("Incorrect area, try again.");
+            failedAttempts++;
+            if (failedAttempts >= maxFailedAttempts) {
+                // Highlight the correct callout area
+                addCalloutText(calloutName, calloutData[0], calloutData[1], calloutData[2], calloutData[3]);
+            }
         }
     }
     else if (shouldRemoveCallout) {
