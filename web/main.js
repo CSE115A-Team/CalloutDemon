@@ -51,7 +51,7 @@ function addCalloutText(text, topX, topY, bottomX, bottomY) {
     textElement.setAttribute("y", topY + boxHeightOffset);
     textElement.setAttribute("dominant-baseline", "middle");
     textElement.setAttribute("text-anchor", "middle");
-    textElement.setAttribute("font-family", "Sitka Small");
+    textElement.setAttribute("font-family", "'Helvetica Neue");
     textElement.setAttribute("font-size", "10px");
     textElement.setAttribute("font-weight", "bold");
     textElement.setAttribute("style", "user-select: none; fill: white;");
