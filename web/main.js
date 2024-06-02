@@ -93,30 +93,50 @@ function toggleGameLoop() {
     gameRunning = !gameRunning;
     startButton.innerText = gameRunning ? 'Stop Game' : 'Start Game';
     const currentMap = document.getElementById('mapSelector').value;
+    const gameMode = document.getElementById('gamemodeSelector').value;
 
     if (gameRunning) {
         // Disable Dropdown Menu
+        document.getElementById('gamemodeSelector').disabled = true;
+        document.getElementById('gamemodeSelector').classList.add('disabled-dropdown');    
+
         mapSelector.disabled = true;
         mapSelector.classList.add('disabled-dropdown');
-
-        // Clear callouts 
         clearMapText();
 
-        // Reset failed attempts counter
-        failedAttempts = 0;
+        if (gameMode === 'Vocal') {
+            eel.get_random_image(currentMap)((imagePath) => {
+                console.log('Received image path:', imagePath);
+                if (imagePath) {
+                    const fullPath = 'images/maps/Vocal/' + currentMap + '/' + imagePath; 
+                    console.log('Full image path:', fullPath);
+                    mapImage.setAttribute("xlink:href", fullPath);
+                } else {
+                    updateMapImage();
+                }
+            });
+        } else {
 
-        // Get the Callout
-        getNextCallout(currentMap);
+            // Reset failed attempts counter
+            failedAttempts = 0;
 
+            // Get the Callout
+            getNextCallout(currentMap);
+        }
     } else {
         // Enable the dropdown and update its appearance
-        mapSelector.disabled = false;
-        mapSelector.classList.remove('disabled-dropdown');
+        document.getElementById('mapSelector').disabled = false;
+        document.getElementById('gamemodeSelector').disabled = false;
+        document.getElementById('mapSelector').classList.remove('disabled-dropdown');
+        document.getElementById('gamemodeSelector').classList.remove('disabled-dropdown');
 
         // Remove callout text
         calloutDisplayText.innerText = "";
 
-        // Switch back to the labeled version 
+        // Switch back to the map
+        if (gameMode === 'Vocal') {
+            updateMapImage();
+        }
         drawMapCallouts();
     }
 }
@@ -306,15 +326,15 @@ function setVoiceCalloutHotkey(key) {
             }
         }
 
-        // // Gets words in the speech transcript
-        // const wordsInTranscript = speechToText.getSpeechTranscript().split(' ');
+        // Gets words in the speech transcript
+        const wordsInTranscript = speechToText.getSpeechTranscript().split(' ');
 
-        // // Check if any words appear in callout
-        // wordsInTranscript.forEach(curWord => {
-        //     if (CALLOUT_NAME.toLocaleLowerCase().includes(curWord.toLocaleLowerCase())) {
-        //         // Change map displayed
-        //     }
-        // });
+        // Check if any words appear in callout
+        wordsInTranscript.forEach(curWord => {
+            if (curWord !== "" && calloutName.toLowerCase().includes(curWord.toLowerCase())) {
+                // Change Callout
+            }
+        });
     });
 }
 
