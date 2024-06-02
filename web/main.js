@@ -111,6 +111,9 @@ function toggleGameLoop() {
                     const fullPath = 'images/maps/Vocal/' + currentMap + '/' + imagePath; 
                     console.log('Full image path:', fullPath);
                     mapImage.setAttribute("xlink:href", fullPath);
+
+                    const parts = imagePath.split("_")[1];
+                    calloutName = parts.split(".")[0];
                 } else {
                     updateMapImage();
                 }
@@ -304,6 +307,7 @@ function setVoiceCalloutHotkey(key) {
     document.addEventListener('keydown', (event) => {
         if (!isStarted) {
 
+
             // Check if the key pressed is the 's' key for start recording
             if (event.key === key) {
                 isStarted = true;
@@ -317,24 +321,30 @@ function setVoiceCalloutHotkey(key) {
 
             // Check if the key pressed is the 's' key for start recording
             if (event.key === key) {
+                isStarted = false;
+                speechToText.stopRecording();
 
-                // Wait 300ms before stopping recording 
-                setTimeout(() => {
-                    isStarted = false;
-                    speechToText.stopRecording();
-                }, 300);
+                // Gets words in the speech transcript
+                const speechTranscript = speechToText.getSpeechTranscript();
+                speechTranscript.then((transcript) => {
+
+                    console.log("transcripts: " + transcript);
+                    const wordsInTranscript = transcript.split(' ');
+
+                    // Check if any words appear in callout
+                    wordsInTranscript.forEach(curWord => {
+                        
+                        if (curWord !== "" && calloutName.toLowerCase().includes(curWord.toLowerCase())) {
+                            // Change Callout
+                            console.log("Correct");
+                        }
+                    });
+
+                }).catch((error) => {
+                    console.log("Speech To Text ERROR: " + error);
+                });
             }
         }
-
-        // Gets words in the speech transcript
-        const wordsInTranscript = speechToText.getSpeechTranscript().split(' ');
-
-        // Check if any words appear in callout
-        wordsInTranscript.forEach(curWord => {
-            if (curWord !== "" && calloutName.toLowerCase().includes(curWord.toLowerCase())) {
-                // Change Callout
-            }
-        });
     });
 }
 
