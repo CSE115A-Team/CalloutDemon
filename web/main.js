@@ -113,6 +113,7 @@ function toggleGameLoop() {
         clearMapText();
 
         if (gameMode === 'Vocal') {
+            
             eel.get_random_image(currentMap)((imagePath) => {
                 console.log('Received image path:', imagePath);
                 if (imagePath) {
@@ -316,6 +317,7 @@ function initSelectCalloutLocation() {
 
 let isStarted = false;
 function setVoiceCalloutHotkey(key) {
+    const currentMap = document.getElementById('mapSelector').value;
     let speechToText = new MicInput();
 
     document.addEventListener('keydown', (event) => {
@@ -351,6 +353,15 @@ function setVoiceCalloutHotkey(key) {
                         if (curWord !== "" && calloutName.toLowerCase().includes(curWord.toLowerCase())) {
                             // Change Callout
                             console.log("Correct");
+                            eel.get_random_image(currentMap)((imagePath) => {
+                            console.log('Received image path:', imagePath);
+                                if (imagePath) {
+                                    const fullPath = 'images/maps/Vocal/' + currentMap + '/' + imagePath; 
+                                    console.log('Full image path:', fullPath);
+                                    mapImage.setAttribute("xlink:href", fullPath);
+                                    
+                                }
+                            })                      
                         }
                     });
 
@@ -361,6 +372,8 @@ function setVoiceCalloutHotkey(key) {
         }
     });
 }
+
+
 
 window.onload = () => {
     initSelectCalloutLocation();
