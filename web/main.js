@@ -1,6 +1,6 @@
 import { MicInput } from './MicInput.js';
 import { MapStorage } from './MapStorage.js';
-import { FirebaseAppConnection } from './FirebaseAppConnection.js';
+import { signInUser, signOutUser, getUserUUID } from './FirebaseAuth.js';
 
 const mapImage = document.getElementById('mapImage');
 const svgContainer = document.getElementById('svgContainer');
@@ -10,9 +10,13 @@ const mapSelector = document.getElementById('mapSelector');
 const calloutDisplayText = document.getElementById('calloutDisplay');
 const addCalloutButton = document.getElementById('addButton');
 const delCalloutButton = document.getElementById('delButton');
+const signInButton = document.getElementById("signInButton");
+const signOutButton = document.getElementById("signOutButton");
 
-const firebaseConnection = new FirebaseAppConnection();
-const mapStorage = new MapStorage(firebaseConnection.getApp());
+signInButton.addEventListener('click', signInUser);
+signOutButton.addEventListener('click', signOutUser);
+
+const mapStorage = new MapStorage();
 
 let displayedCallouts = {};
 let calloutTextObjectStack = [];
@@ -24,15 +28,19 @@ function updateMapImage() {
     console.log('Selected image path:', 'images/maps/' + selectedMap + '_unlabeled.png');
     mapImage.setAttribute("xlink:href", 'images/maps/' + selectedMap + '_unlabeled.png');
 
-    mapStorage.getMapDataByUUID(selectedMap, 'default')
-    .then((data) => {
-        displayedCallouts = data;
-        drawMapCallouts();
-    })
-    .catch((error) => {
-        displayedCallouts = {};
-        console.error("Error getting map data:", error);
-    });
+    let saveLoc = getUserUUID();
+    if (saveLoc == "") {
+        saveLoc = "default";
+    }
+    mapStorage.getMapDataByUUID(selectedMap, saveLoc)
+        .then((data) => {
+            displayedCallouts = data;
+            drawMapCallouts();
+        })
+        .catch((error) => {
+            displayedCallouts = {};
+            console.error("Error getting map data:", error);
+        });
 }
 
 mapSelector.addEventListener('change', () => {
@@ -181,7 +189,13 @@ function getNextCallout() {
 // Saves any changes to callouts
 saveButton.addEventListener('click', () => {
     const selectedMap = mapSelector.value;
-    mapStorage.setMapDataByUUID(selectedMap, displayedCallouts, 'default')
+
+    let saveLoc = getUserUUID();
+    if (saveLoc == "") {
+        mapStorage.setMapDataByUUID(selectedMap, displayedCallouts, 'default');
+    } else {
+        mapStorage.setMapDataByUUID(selectedMap, displayedCallouts, saveLoc);
+    }
 });
 
 function removeCallout(xCoord, yCoord) {
