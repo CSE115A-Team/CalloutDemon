@@ -1,21 +1,51 @@
+import { MicInput } from './MicInput.js';
+import { MapStorage } from './MapStorage.js';
+import { signInUser, signOutUser, getUserUUID } from './FirebaseAuth.js';
+
 const mapImage = document.getElementById('mapImage');
 const svgContainer = document.getElementById('svgContainer');
-
+const startButton = document.getElementById('startButton');
+const saveButton = document.getElementById('saveButton');
+const mapSelector = document.getElementById('mapSelector');
+const calloutDisplayText = document.getElementById('calloutDisplay');
 const addCalloutButton = document.getElementById('addButton');
 const delCalloutButton = document.getElementById('delButton');
+const signInButton = document.getElementById("signInButton");
+const signOutButton = document.getElementById("signOutButton");
+
+signInButton.addEventListener('click', signInUser);
+signOutButton.addEventListener('click', signOutUser);
+
+const mapStorage = new MapStorage();
 
 let displayedCallouts = {};
-let calloutStack = [];
+let calloutTextObjectStack = [];
 
 function updateMapImage() {
-    const selectedMap = document.getElementById('mapSelector').value;
+    clearMapText();
+    
+    const selectedMap = mapSelector.value;
     console.log('Selected image path:', 'images/maps/' + selectedMap + '_unlabeled.png');
     mapImage.setAttribute("xlink:href", 'images/maps/' + selectedMap + '_unlabeled.png');
 
-    calloutJson = fetch('settings/' + selectedMap + '_callouts.json')
-        .then((response) => response.json())
-        .then((json) => displayedCallouts = json);
+    let saveLoc = getUserUUID();
+    if (saveLoc == "") {
+        saveLoc = "default";
+    }
+    mapStorage.getMapDataByUUID(selectedMap, saveLoc)
+        .then((data) => {
+            displayedCallouts = data;
+            drawMapCallouts();
+        })
+        .catch((error) => {
+            displayedCallouts = {};
+            console.error("Error getting map data:", error);
+        });
 }
+
+mapSelector.addEventListener('change', () => {
+    updateMapImage();
+});
 
 function addCalloutText(text, topX, topY, bottomX, bottomY) {
 
@@ -30,7 +60,7 @@ function addCalloutText(text, topX, topY, bottomX, bottomY) {
     textElement.setAttribute("y", topY + boxHeightOffset);
     textElement.setAttribute("dominant-baseline", "middle");
     textElement.setAttribute("text-anchor", "middle");
-    textElement.setAttribute("font-family", "Times New Roman");
+    textElement.setAttribute("font-family", "Sitka Small");
     textElement.setAttribute("font-size", "10px");
     textElement.setAttribute("font-weight", "bold");
     textElement.setAttribute("style", "user-select: none; fill: white;");
@@ -39,40 +69,37 @@ function addCalloutText(text, topX, topY, bottomX, bottomY) {
 
     if (boxHeightOffset > boxWidthOffset) {
         textElement.setAttribute("writing-mode", "vertical-rl");
-        textElement.setAttribute("font-family", "Times New Roman");
-        textElement.setAttribute("style", "user-select: none; fill: white; writing-mode: vertical-rl; font-family: Times New Roman;");
     }
 
     svgContainer.appendChild(textElement);
-    calloutStack.push(textElement);
+    calloutTextObjectStack.push(textElement);
 }
 
 function drawMapCallouts() {
 
     // Loop and display all keys in json
     for (const callout in displayedCallouts) {
-        var points = displayedCallouts[callout];
+        if (callout !== null) {
+            var points = displayedCallouts[callout];
+        }
         addCalloutText(callout, points[0], points[1], points[2], points[3]);
     }
 }
 
 // Removes all text on the image
 function clearMapText() {
-    while (calloutStack.length > 0) {
-        svgContainer.removeChild(calloutStack.pop());
+    while (calloutTextObjectStack.length > 0) {
+        svgContainer.removeChild(calloutTextObjectStack.pop());
     }
-    console.log(calloutStack);
 }
 
 let gameRunning = false;
 let calloutName;
-let calloutData = {};
-let failedAttempts = 0;
-const maxFailedAttempts = 3; // Set the number of allowed failed attempts
+let calloutLocation;
 
 function toggleGameLoop() {
     gameRunning = !gameRunning;
-    document.getElementById('gameButton').innerText = gameRunning ? 'Stop Game' : 'Start Game';
+    startButton.innerText = gameRunning ? 'Stop Game' : 'Start Game';
     const currentMap = document.getElementById('mapSelector').value;
     const gameMode = document.getElementById('gamemodeSelector').value;
 
@@ -92,6 +119,9 @@ function toggleGameLoop() {
                     const fullPath = 'images/maps/Vocal/' + currentMap + '/' + imagePath; 
                     console.log('Full image path:', fullPath);
                     mapImage.setAttribute("xlink:href", fullPath);
+
+                    const parts = imagePath.split("_")[1];
+                    calloutName = parts.split(".")[0];
                 } else {
                     updateMapImage();
                 }
@@ -112,7 +142,7 @@ function toggleGameLoop() {
         document.getElementById('gamemodeSelector').classList.remove('disabled-dropdown');
 
         // Remove callout text
-        document.getElementById('calloutDisplay').innerText = "";
+        calloutDisplayText.innerText = "";
 
         // Switch back to the map
         if (gameMode === 'Vocal') {
@@ -122,107 +152,138 @@ function toggleGameLoop() {
     }
 }
 
-let removeCallout = false;
-let editCallout = true;
-let addCallout = false;
+startButton.addEventListener('click', () => {
+    toggleGameLoop();
+});
 
-function setRemoveFlag() {
-    removeCallout = true;
-}
-function setAddFlag() {
-    addCallout = true;
-    editCallout = false;
+
+let shouldRemoveCallout = false;
+let shouldEditCallout = true;
+let shouldAddCallout = false;
+
+delCalloutButton.addEventListener('click', () => {
+    shouldRemoveCallout = true;
+});
+
+addCalloutButton.addEventListener('click', () => {
+    shouldAddCallout = true;
+    shouldEditCallout = false;
+});
+
+function getNextCallout() {
+    var calloutKeys = Object.keys(displayedCallouts);
+    var randomKey = calloutKeys[Math.floor(Math.random() * calloutKeys.length)];
+    console.log(randomKey);
+    if (randomKey) {
+        // Display the callout name and store the data
+        calloutName = randomKey;
+        calloutDisplayText.innerText = `${randomKey}`;
+        calloutLocation = displayedCallouts[randomKey];
+    } else {
+        calloutDisplayText.innerText = "No callout found";
+        calloutLocation = [];  // Reset the data if none found
+    }
+    console.log(calloutLocation);
 }
 
-function getNextCallout(currentMap) {
-    eel.get_random_callout(currentMap)(function (callout) {
-        if (callout) {
-            // Display the callout name and store the data
-            calloutName = callout[0];
-            document.getElementById('calloutDisplay').innerText = `${callout[0]}`;
-            calloutData = callout[1];
-            console.log("calloutData:", calloutData); // Print callout[1] to the console
-        } else {
-            document.getElementById('calloutDisplay').innerText = "No callout found";
-            calloutData = {};  // Reset the data if none found
+// Saves any changes to callouts
+saveButton.addEventListener('click', () => {
+    const selectedMap = mapSelector.value;
+
+    let saveLoc = getUserUUID();
+    if (saveLoc == "") {
+        mapStorage.setMapDataByUUID(selectedMap, displayedCallouts, 'default');
+    } else {
+        mapStorage.setMapDataByUUID(selectedMap, displayedCallouts, saveLoc);
+    }
+});
+
+function removeCallout(xCoord, yCoord) {
+    // Loop over callouts and find the one at clicked location
+    for (const key in displayedCallouts) {
+        const points = displayedCallouts[key];
+
+        // Checks if it is the current callout and removes callout if so
+        if (xCoord >= points[0] && yCoord >= points[1] && xCoord <= points[2] && yCoord <= points[3]) {
+            delete displayedCallouts[key];
+            clearMapText();
+            drawMapCallouts();
+            return;
         }
-    });
+    }
 }
 
-mapImage.addEventListener('click', function (event) {
+function editCallout(xCoord, yCoord) {
+    // Loop over callouts and find the one at clicked location
+    for (const key in displayedCallouts) {
+        const points = displayedCallouts[key];
+
+        // Checks if it is the current callout and changes name if so
+        if (xCoord >= points[0] && yCoord >= points[1] && xCoord <= points[2] && yCoord <= points[3]) {
+            const calloutName = prompt("Enter a new callout name:")
+            if (calloutName !== null) {
+                displayedCallouts[calloutName] = displayedCallouts[key];
+                delete displayedCallouts[key];
+                clearMapText();
+                drawMapCallouts();
+            }
+            return;
+        }
+    }
+}
+
+let failedAttempts = 0;
+const maxFailedAttempts = 3; // Set the number of allowed failed attempts
+mapImage.addEventListener('click', function(event) {
     const rect = this.getBoundingClientRect();
     const x = event.clientX - rect.left; // X coordinate relative to the image
     const y = event.clientY - rect.top;  // Y coordinate relative to the image
     console.log(`Clicked at x: ${x}, y: ${y}`);
 
     if (gameRunning) {
-        if (x >= calloutData[0] && y >= calloutData[1] && x <= calloutData[2] && y <= calloutData[3]) {
+        if (x >= calloutLocation[0] && y >= calloutLocation[1] && x <= calloutLocation[2] && y <= calloutLocation[3]) {
             clearMapText();
             // Reset failed attempts counter
             failedAttempts = 0;
             // Get the next callout
             getNextCallout(document.getElementById('mapSelector').value);
-        } else {
+        } 
+        else {
             failedAttempts++;
+            console.log(failedAttempts);
             if (failedAttempts >= maxFailedAttempts) {
-                // Highlight the correct callout area
-                addCalloutText(calloutName, calloutData[0], calloutData[1], calloutData[2], calloutData[3]);
+
+                // Show the correct callout area
+                addCalloutText(calloutName, calloutLocation[0], calloutLocation[1], calloutLocation[2], calloutLocation[3]);
             }
         }
     }
-    else if (removeCallout) {
-        removeCallout = false
-
-        // Loop over callouts and find the one at clicked location
-        for (const key in displayedCallouts) {
-            const points = displayedCallouts[key];
-
-            // Checks if it is the current callout and removes callout if so
-            if (x >= points[0] && y >= points[1] && x <= points[2] && y <= points[3]) {
-                delete displayedCallouts[key];
-                clearMapText();
-                drawMapCallouts();
-                return;
-            }
-        }
+    else if (shouldRemoveCallout) {
+        removeCallout(x, y);
+        shouldRemoveCallout = false;
     }
-    else if (editCallout) {
-        // Loop over callouts and find the one at clicked location
-        for (const key in displayedCallouts) {
-            const points = displayedCallouts[key];
-
-            // Checks if it is the current callout and changes name if so
-            if (x >= points[0] && y >= points[1] && x <= points[2] && y <= points[3]) {
-                const calloutName = prompt("Enter a new callout name:")
-                if (calloutName !== null) {
-                    displayedCallouts[calloutName] = displayedCallouts[key];
-                    delete displayedCallouts[key];
-                    clearMapText();
-                    drawMapCallouts();
-                }
-                return;
-            }
-        }
+    else if (shouldEditCallout) {
+        editCallout(x, y);
     }
-    editCallout = true
+    shouldEditCallout = true;
 });
 
 function initSelectCalloutLocation() {
 
     // Code to edit callout boxes
     let topX, topY, bottomX, bottomY;
-    mapImage.addEventListener('mousedown', function (event) {
-        if (addCallout) {
+
+    // Find image rectangle
+    mapImage.addEventListener('mousedown', function(event) {
+        if (shouldAddCallout) {
             const rect = this.getBoundingClientRect();
             topX = event.clientX - rect.left;
             topY = event.clientY - rect.top;
         }
     });
 
-    mapImage.addEventListener('mouseup', function (event) {
-        if (addCallout) {
-            addCallout = false;
-
+    mapImage.addEventListener('mouseup', function(event) {
+        if (shouldAddCallout) {
             const rect = this.getBoundingClientRect();
             bottomX = event.clientX - rect.left;
             bottomY = event.clientY - rect.top;
@@ -241,10 +302,61 @@ function initSelectCalloutLocation() {
                 bottomY = tmp;
             }
 
+            // Adds callout text
             if (calloutName !== null) {
                 addCalloutText(calloutName, topX, topY, bottomX, bottomY);
                 displayedCallouts[calloutName] = [topX, topY, bottomX, bottomY];
                 console.log(displayedCallouts);
+            } 
+
+            shouldAddCallout = false;
+        }
+    });
+}
+
+let isStarted = false;
+function setVoiceCalloutHotkey(key) {
+    let speechToText = new MicInput();
+
+    document.addEventListener('keydown', (event) => {
+        if (!isStarted) {
+
+
+            // Check if the key pressed is the 's' key for start recording
+            if (event.key === key) {
+                isStarted = true;
+                speechToText.startRecording();
+            }
+        }
+    });
+
+    document.addEventListener('keyup', (event) => {
+        if (isStarted) {
+
+            // Check if the key pressed is the 's' key for start recording
+            if (event.key === key) {
+                isStarted = false;
+                speechToText.stopRecording();
+
+                // Gets words in the speech transcript
+                const speechTranscript = speechToText.getSpeechTranscript();
+                speechTranscript.then((transcript) => {
+
+                    console.log("transcripts: " + transcript);
+                    const wordsInTranscript = transcript.split(' ');
+
+                    // Check if any words appear in callout
+                    wordsInTranscript.forEach(curWord => {
+                        
+                        if (curWord !== "" && calloutName.toLowerCase().includes(curWord.toLowerCase())) {
+                            // Change Callout
+                            console.log("Correct");
+                        }
+                    });
+
+                }).catch((error) => {
+                    console.log("Speech To Text ERROR: " + error);
+                });
             }
         }
     });
@@ -252,5 +364,6 @@ function initSelectCalloutLocation() {
 
 window.onload = () => {
     initSelectCalloutLocation();
+    setVoiceCalloutHotkey('t');
     updateMapImage();
 }
