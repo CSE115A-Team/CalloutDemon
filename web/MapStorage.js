@@ -39,7 +39,6 @@ export class MapStorage {
     // Sets map data at a certain UUID
     setMapDataByUUID(map, data, uuid) {
 
-        console.log(uuid);
         const docRef = doc(this.db, 'users', uuid);
 
         return setDoc(docRef, 
