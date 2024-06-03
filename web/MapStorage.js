@@ -12,12 +12,16 @@ export class MapStorage {
     getMapDataByUUID(map, uuid) {
         const docRef = doc(this.db, 'users', uuid);
 
-        // Creates default document if doesnt exist for user
+        // Creates default document if user does not have one
         const docSnap = getDoc(docRef);
         if (!docSnap.exists) {
             const defaultDoc = doc(this.db, 'users', 'default');
-            getDoc(defaultDoc).then((doc) => {
+            return getDoc(defaultDoc).then((doc) => {
                 setDoc(docRef, doc.data());
+                return JSON.parse(doc.data()[map]);
+            }).catch((error) => {
+                console.error('Error getting document:', error);
+                throw error;
             });
         }
 
@@ -29,8 +33,7 @@ export class MapStorage {
             } else {
                 throw new error("No such document");
             }
-        })
-        .catch((error) => {
+        }).catch((error) => {
             console.error('Error getting document:', error);
             throw error;
         });
