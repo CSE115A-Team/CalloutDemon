@@ -6,38 +6,45 @@ export class MicInput {
         this.audioStream = null;
         this.audioRecorder = null;
         this.audioChunks = [];
-        this.transcript = '';
 
         this.recognition = new window.webkitSpeechRecognition(); // Chrome
-        this.recognition.continuous = true;
+        this.recognition.continuous = false;
         this.recognition.interimResults = false;
         this.recognition.lang = 'en-US';
 
-        this.recognition.onresult = (event) => {
-            this.transcript = event.results[event.results.length - 1][0].transcript;
-        };
-
-        this.recognition.onend = () => {
-            console.log('Final Transcript: ', this.transcript);
-        };
+        this.transcript;
     }
 
     startRecording() {
-        this.transcript = '';
+        this.transcriptReady = false;
         this.recognition.start();
-        console.log('Recording started.');
     }
 
+    // Returns speech transcript
     stopRecording() {
+        
+        this.transcript = new Promise((resolve, reject) => {
+            let transcriptText = "";
+            this.recognition.onresult = (event) => {
+                transcriptText = event.results[event.results.length - 1][0].transcript;
+                console.log("result: " + transcriptText);
+            };
+
+            this.recognition.onend = () => {
+                resolve(transcriptText);
+            }
+
+            this.recognition.onerror = (error) => {
+                reject(error);
+            };
+        });
+
         this.recognition.stop();
-        console.log('Recording stoped.');
     }
 
+    // Returns promise for the transcript
     getSpeechTranscript() {
-        if (this.transcript) {
-            return this.transcript;
-        }
-        return "";
+        return this.transcript;
     }
 }
   

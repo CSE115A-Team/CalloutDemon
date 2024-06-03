@@ -8,8 +8,11 @@
 </head>
 <body>
     <div class="container">
-        <h1>CalloutDemon</h1>
         <div class="inline-container">
+            <select id="gamemodeSelector">
+                <option>Click</option>
+                <option>Vocal</option>
+            </select>
             <select id="mapSelector">
                 <option value="ascent">Ascent</option>
                 <option value="bind">Bind</option>
@@ -24,20 +27,26 @@
                 <button id="settingButton">Setting</button>
             </a>
         </div>
-        <svg id="svgContainer" width="600" height="600">
+        <svg id="svgContainer">
             <image id="mapImage" xlink:href="" alt="Map Image"/>
         </svg>
         <p id="calloutDisplay"></p>
-        <div class="inline-container">
+        <div class="inline-container2">
             <button id="addButton">Add Callout</button>
             <button id="delButton">Delete Callout</button>
             <button id="saveButton">Save Callouts</button>
+            <button id="signInButton">Create Account / Sign In</button>
+            <button id="signOutButton">Sign Out</button>
+            <div id="message">
+                <p>You have signed in as <span id="userName"></span> with the email <span id="userEmail"></span> </p>
+            </div>
         </div>
     </div>
     <script src="eel.js"></script>
     <script type="module" src="MicInput.js"></script>
     <script type="module" src="FirebaseAppConnection.js"></script>
     <script type="module" src="MapStorage.js"></script>
+    <script type="module" src="FirebaseAuth.js"></script>
     <script type="module" src="main.js"></script>
 </body>
 </html>

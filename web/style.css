@@ -8,7 +8,9 @@
 }
 
 body {
+    color: white;
     font-family: 'Helvetica Neue', serif;
+    text-align: center;
     margin: 0;
     background-color: var(--bg-color);
     display: flex;
@@ -16,6 +18,13 @@ body {
     align-items: center;
     height: 100vh;
     text-align: center;
+}
+
+h1 {
+    font-family: 'Helvetica Neue', serif;
+    color: white;
+    color: var(--text-color);
+    margin-bottom: 20px;
 }
 
 .container {
@@ -27,23 +36,24 @@ body {
     max-width: 800px; /* limit the maximum width of the container */
 }
 
-h1 {
-    color: white;
-    font-size: 3em;
-    margin-bottom: 20px;
-    font-weight: bold;
+.inline-container {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
 }
 
-.inline-container {
+.inline-container2 {
     display: flex;
     justify-content: center;
     gap: 10px;
     margin-bottom: 20px;
 }
 
+
 #svgContainer {
-    width: 600px; /* Ensure the svgContainer takes full width */
-    height: 600px; /* Ensure the svgContainer takes full height */
+    width: 700px; /* Ensure the svgContainer takes full width */
+    height: 700px; /* Ensure the svgContainer takes full height */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -55,8 +65,10 @@ h1 {
 }
 
 #calloutDisplay {
+    color: white;
+    font-weight: bold;
+    font-family: 'Helvetica Neue', serif;
     font-size: 18px;
-    color: var(--text-color);
     margin-bottom: 20px; /* Space below the callout text */
 }
 

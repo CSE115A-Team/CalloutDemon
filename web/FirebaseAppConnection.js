@@ -1,5 +1,4 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-
 const firebaseConfig = {
     apiKey: "AIzaSyDgFO86XXDuvyFrSPSmCA8YC8XcucAsVYw",
     authDomain: "callout-demon.firebaseapp.com",
@@ -10,13 +9,6 @@ const firebaseConfig = {
     measurementId: "G-SSS8LJWJVR"
 };
 
-export class FirebaseAppConnection {
-    constructor() {
-        // Initialize Firebase
-        this.app = initializeApp(firebaseConfig);
-    }
+const app = initializeApp(firebaseConfig);
 
-    getApp() {
-        return this.app
-    }
-}
+export default app;
