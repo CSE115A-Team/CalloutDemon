@@ -316,59 +316,58 @@ function initSelectCalloutLocation() {
 }
 
 let isStarted = false;
+
+function startRecording(speechToText) {
+    isStarted = true;
+    speechToText.startRecording();
+}
+
+function stopRecording(speechToText, currentMap) {
+    isStarted = false;
+    speechToText.stopRecording();
+
+    const speechTranscript = speechToText.getSpeechTranscript();
+    speechTranscript.then((transcript) => {
+        console.log("transcripts: " + transcript);
+        postCallout(transcript, currentMap);
+    }).catch((error) => {
+        console.log("Speech To Text ERROR: " + error);
+    });
+}
+
+function postCallout(transcript, currentMap) {
+    const wordsInTranscript = transcript.split(' ');
+
+    wordsInTranscript.forEach(curWord => {
+        if (curWord !== "" && calloutName.toLowerCase().includes(curWord.toLowerCase())) {
+            console.log("Correct");
+            stopRecording();
+            eel.get_random_image(currentMap)((imagePath) => {
+                console.log('Received image path:', imagePath);
+                if (imagePath) {
+                    const fullPath = 'images/maps/Vocal/' + currentMap + '/' + imagePath; 
+                    console.log('Full image path:', fullPath);
+                    mapImage.setAttribute("xlink:href", fullPath);
+                }
+            });
+            startRecording();
+        }
+    });
+}
+
 function setVoiceCalloutHotkey(key) {
     const currentMap = document.getElementById('mapSelector').value;
     let speechToText = new MicInput();
 
     document.addEventListener('keydown', (event) => {
-        if (!isStarted) {
-
-
-            // Check if the key pressed is the 's' key for start recording
-            if (event.key === key) {
-                isStarted = true;
-                speechToText.startRecording();
-            }
+        if (!isStarted && event.key === key) {
+            startRecording(speechToText);
         }
     });
 
     document.addEventListener('keyup', (event) => {
-        if (isStarted) {
-
-            // Check if the key pressed is the 's' key for start recording
-            if (event.key === key) {
-                isStarted = false;
-                speechToText.stopRecording();
-
-                // Gets words in the speech transcript
-                const speechTranscript = speechToText.getSpeechTranscript();
-                speechTranscript.then((transcript) => {
-
-                    console.log("transcripts: " + transcript);
-                    const wordsInTranscript = transcript.split(' ');
-
-                    // Check if any words appear in callout
-                    wordsInTranscript.forEach(curWord => {
-                        
-                        if (curWord !== "" && calloutName.toLowerCase().includes(curWord.toLowerCase())) {
-                            // Change Callout
-                            console.log("Correct");
-                            eel.get_random_image(currentMap)((imagePath) => {
-                            console.log('Received image path:', imagePath);
-                                if (imagePath) {
-                                    const fullPath = 'images/maps/Vocal/' + currentMap + '/' + imagePath; 
-                                    console.log('Full image path:', fullPath);
-                                    mapImage.setAttribute("xlink:href", fullPath);
-                                    
-                                }
-                            })                      
-                        }
-                    });
-
-                }).catch((error) => {
-                    console.log("Speech To Text ERROR: " + error);
-                });
-            }
+        if (isStarted && event.key === key) {
+            stopRecording(speechToText, currentMap);
         }
     });
 }
