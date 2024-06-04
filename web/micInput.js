@@ -3,10 +3,6 @@
 // Use stopRecording() to end recording
 export class MicInput {
     constructor() {
-        this.audioStream = null;
-        this.audioRecorder = null;
-        this.audioChunks = [];
-
         this.recognition = new window.webkitSpeechRecognition(); // Chrome
         this.recognition.continuous = false;
         this.recognition.interimResults = false;
@@ -16,7 +12,6 @@ export class MicInput {
     }
 
     startRecording() {
-        this.transcriptReady = false;
         this.recognition.start();
     }
 

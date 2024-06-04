@@ -113,20 +113,7 @@ function toggleGameLoop() {
         clearMapText();
 
         if (gameMode === 'Vocal') {
-            
-            eel.get_random_image(currentMap)((imagePath) => {
-                console.log('Received image path:', imagePath);
-                if (imagePath) {
-                    const fullPath = 'images/maps/Vocal/' + currentMap + '/' + imagePath; 
-                    console.log('Full image path:', fullPath);
-                    mapImage.setAttribute("xlink:href", fullPath);
-
-                    const parts = imagePath.split("_")[1];
-                    calloutName = parts.split(".")[0];
-                } else {
-                    updateMapImage();
-                }
-            });
+            setNextLocationImage();
         } else {
 
             // Reset failed attempts counter
@@ -170,6 +157,25 @@ addCalloutButton.addEventListener('click', () => {
     shouldAddCallout = true;
     shouldEditCallout = false;
 });
+
+function setNextLocationImage() {
+    const currentMap = mapSelector.value;
+
+    eel.get_random_image(currentMap)((imagePath) => {
+        console.log('Received image path:', imagePath);
+        if (imagePath) {
+            const fullPath = 'images/maps/Vocal/' + currentMap + '/' + imagePath;
+            console.log('Full image path:', fullPath);
+            mapImage.setAttribute("xlink:href", fullPath);
+            
+            const parts = imagePath.split("_")[1];
+            calloutName = parts.split(".")[0];
+        }
+        else {
+            updateMapImage();
+        }
+    });
+};
 
 function getNextCallout() {
     var calloutKeys = Object.keys(displayedCallouts);
@@ -335,37 +341,18 @@ function stopRecording(speechToText, currentMap) {
     });
 }
 
-function postCallout(transcript, currentMap) {
+function postCallout(transcript) {
     const wordsInTranscript = transcript.split(' ');
 
-    let curWord = ''; // Define curWord outside the loop
-
-    const fetchNextImage = () => {
-        eel.get_random_image(currentMap)((imagePath) => {
-            console.log('Received image path:', imagePath);
-            if (imagePath) {
-                const fullPath = 'images/maps/Vocal/' + currentMap + '/' + imagePath;
-                console.log('Full image path:', fullPath);
-                mapImage.setAttribute("xlink:href", fullPath);
-                
-                const parts = imagePath.split("_")[1];
-                calloutName = parts.split(".")[0];
-            }
-        });
-    };
-
-    wordsInTranscript.forEach(word => {
-        curWord = word; // Update curWord in each iteration
-
+    wordsInTranscript.forEach(curWord => {
         if (curWord !== "" && calloutName.toLowerCase().includes(curWord.toLowerCase())) {
-            console.log("Correct");
-            fetchNextImage(); // Fetch the next image
+            setNextLocationImage(); // Fetch the next image
         }
     });
 }
 
 function setVoiceCalloutHotkey(key) {
-    const currentMap = document.getElementById('mapSelector').value;
+    const currentMap = mapSelector.value;
     let speechToText = new MicInput();
 
     document.addEventListener('keydown', (event) => {
