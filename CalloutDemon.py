@@ -2,6 +2,9 @@ import json
 import random
 import eel
 import os
+import wave
+import io
+import base64
 
 eel.init('web')  # Initialize Eel with the 'web' directory
 
@@ -21,16 +24,18 @@ def get_random_callout(map_name):
         return None
 
 @eel.expose
-def get_random_image(directory):
+def get_random_image(map_name):
+    images_directory = os.path.join('web', 'images', 'maps', 'Vocal', map_name.lower())
     try:
-        images = os.path.join('web', 'images', 'maps', 'Vocal', directory.lower() + '_vocal')
+        images = os.listdir(images_directory)
         if images:
-            return random.choice(images)
+            selected_image = random.choice(images)
+            return selected_image
         else:
             return None
     except Exception as e:
-        print(f"Failed to access directory {directory}: {str(e)}")
+        print(f"Failed to access directory {images_directory}: {str(e)}")
         return None
 
 if __name__ == "__main__":
-    eel.start('index.html', size=(800, 800))  # Start the Eel application with the specified window size
+    eel.start('index.html', size=(800, 900))  # Start the Eel application with the specified window size
