@@ -17,17 +17,22 @@ function updateMapImage() {
         .then((json) => displayedCallouts = json);
 }
 
-function addCalloutText(text, topX, topY, bottomX, bottomY) {
+function createRectangleElement(topX, topY, bottomX, bottomY) {
+    var rectElement = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    rectElement.setAttribute("x", topX);
+    rectElement.setAttribute("y", topY);
+    rectElement.setAttribute("width", bottomX - topX);
+    rectElement.setAttribute("height", bottomY - topY);
+    rectElement.setAttribute("fill", "rgba(0, 0, 255, 0.3)");
+    rectElement.setAttribute("rx", "5"); // Rounded corners
+    rectElement.setAttribute("ry", "5"); // Rounded corners
+    return rectElement;
+}
 
-    // How much to offset position of label
-    var boxHeightOffset = (bottomY - topY)/2;
-    var boxWidthOffset = (bottomX - topX)/2;
 
-    // Creates text and adds it to svg
+function createTextElement(text) {
     var textElement = document.createElementNS("http://www.w3.org/2000/svg", "text");
     textElement.textContent = text;
-    textElement.setAttribute("x", topX + boxWidthOffset);
-    textElement.setAttribute("y", topY + boxHeightOffset);
     textElement.setAttribute("dominant-baseline", "middle");
     textElement.setAttribute("text-anchor", "middle");
     textElement.setAttribute("font-family", "Times New Roman");
@@ -37,25 +42,31 @@ function addCalloutText(text, topX, topY, bottomX, bottomY) {
     textElement.setAttribute("visibility", "visible");
     textElement.setAttribute("pointer-events", "none");
 
-    var rectElement = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-    rectElement.setAttribute("x", topX);
-    rectElement.setAttribute("y", topY);
-    rectElement.setAttribute("width", bottomX- topX);
-    rectElement.setAttribute("height", bottomY - topY);
-    rectElement.setAttribute("fill", "rgba(0, 0, 255, 0.3)");
-    rectElement.setAttribute("rx", "5"); // Rounded corners
-    rectElement.setAttribute("ry", "5"); // Rounded corners
+    return textElement;
+}
+
+function addCalloutText(text, topX, topY, bottomX, bottomY) {
+
+    // How much to offset position of label
+    var boxHeightOffset = (bottomY - topY)/2;
+    var boxWidthOffset = (bottomX - topX)/2;
+
+    // Creates text and adds it to svg
+    var textElement = createTextElement(text);
+    textElement.textContent = text;
+    textElement.setAttribute("x", topX + boxWidthOffset);
+    textElement.setAttribute("y", topY + boxHeightOffset);
 
     if (boxHeightOffset > boxWidthOffset) {
         textElement.setAttribute("writing-mode", "vertical-rl");
-        textElement.setAttribute("font-family", "Times New Roman"); 
-        textElement.setAttribute("style", "user-select: none; fill: white; writing-mode: vertical-rl; font-family: Times New Roman;");
     }
 
+    var rectangleElement = createRectangleElement(topX, topY, bottomX, bottomY);
     svgContainer.appendChild(textElement);
-    svgContainer.appendChild(rectElement);
     calloutStack.push(textElement);
-    calloutStack.push(rectElement);
+
+    svgContainer.appendChild(rectangleElement);
+    calloutStack.push(rectangleElement);
 }
 
 function drawMapCallouts() {
@@ -132,8 +143,8 @@ function getNextCallout(currentMap) {
     });
 }
 
-mapImage.addEventListener('click', function(event) {
-    const rect = this.getBoundingClientRect();
+svgContainer.addEventListener('click', function(event) {
+    const rect = mapImage.getBoundingClientRect();
     const x = event.clientX - rect.left; // X coordinate relative to the image
     const y = event.clientY - rect.top;  // Y coordinate relative to the image
     console.log(`Clicked at x: ${x}, y: ${y}`);
@@ -185,19 +196,21 @@ mapImage.addEventListener('click', function(event) {
     }
     editCallout = true
 });
+
 let isDragging = false;
 function initSelectCalloutLocation() {
 
     // Code to edit callout boxes
     let topX, topY, bottomX, bottomY;
     
-    let startX, startY, rectElement;
-    mapImage.addEventListener('mousedown', function(event) {
+    let startX, startY, rectElement = null;
+    svgContainer.addEventListener('mousedown', (event) => {
         if (addCallout) {
             //Ray's code
             isDragging = true;
             startX = event.offsetX;
             startY = event.offsetY;
+            
             rectElement = document.createElementNS("http://www.w3.org/2000/svg", "rect");
             rectElement.setAttribute("x", startX);
             rectElement.setAttribute("y", startY);
@@ -207,39 +220,19 @@ function initSelectCalloutLocation() {
             rectElement.setAttribute("stroke", "blue");
             rectElement.setAttribute("stroke-width", 1);
             
-            const rect = this.getBoundingClientRect();
+            const rect = mapImage.getBoundingClientRect();
             topX = event.clientX - rect.left;
             topY = event.clientY - rect.top;
 
             //Ray's code
             svgContainer.appendChild(rectElement);
-            calloutStack.push(rectElement);
         }
     });
-    //Ray's code
-    mapImage.addEventListener("mousemove", (event) => {
-        if (!isDragging) return;
 
-        const currentX = event.offsetX;
-        const currentY = event.offsetY;
-
-        const rectX = Math.min(currentX, startX);
-        const rectY = Math.min(currentY, startY);
-        const rectWidth = Math.abs(currentX - startX);
-        const rectHeight = Math.abs(currentY - startY);
-
-        rectElement.setAttribute("x", rectX);
-        rectElement.setAttribute("y", rectY);
-        rectElement.setAttribute("width", rectWidth);
-        rectElement.setAttribute("height", rectHeight);
-    });
-    
-
-    mapImage.addEventListener('mouseup', function(event) {
+    svgContainer.addEventListener('mouseup', (event) => {
         if (addCallout) {
-            //addCallout = false;
 
-            const rect = this.getBoundingClientRect();
+            const rect = mapImage.getBoundingClientRect();
             bottomX = event.clientX - rect.left;
             bottomY = event.clientY - rect.top;
 
@@ -262,11 +255,39 @@ function initSelectCalloutLocation() {
                 displayedCallouts[calloutName] = [topX, topY, bottomX, bottomY];
                 console.log(displayedCallouts);
             } 
-            isDragging = false;
         }
+
+        if (rectElement) {
+            svgContainer.removeChild(rectElement);
+            rectElement = null;
+        }
+    
+        isDragging = false;
+        addCallout = false;
     });
-    mapImage.addEventListener("mouseleave", () => {
-        //isDragging = false;
+
+    //Ray's code
+    svgContainer.addEventListener("mousemove", (event) => {
+        if (!isDragging) {
+            if (rectElement) {
+                svgContainer.removeChild(rectElement);
+                rectElement = null;
+            }
+            return;
+        } 
+
+        const currentX = event.offsetX;
+        const currentY = event.offsetY;
+
+        const rectX = Math.min(currentX, startX);
+        const rectY = Math.min(currentY, startY);
+        const rectWidth = Math.abs(currentX - startX);
+        const rectHeight = Math.abs(currentY - startY);
+
+        rectElement.setAttribute("x", rectX);
+        rectElement.setAttribute("y", rectY);
+        rectElement.setAttribute("width", rectWidth);
+        rectElement.setAttribute("height", rectHeight);
     });
 }
 
