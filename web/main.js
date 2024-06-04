@@ -164,6 +164,7 @@ function setNextLocationImage() {
 
     eel.get_random_image(currentMap)((imagePath) => {
         if (imagePath) {
+            const fullPath = 'images/maps/Vocal/' + currentMap + '/' + imagePath;
             mapImage.setAttribute("xlink:href", fullPath);
             
             const parts = imagePath.split("_")[1];
