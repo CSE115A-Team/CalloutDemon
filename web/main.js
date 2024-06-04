@@ -163,10 +163,7 @@ function setNextLocationImage() {
     const currentMap = mapSelector.value;
 
     eel.get_random_image(currentMap)((imagePath) => {
-        console.log('Received image path:', imagePath);
         if (imagePath) {
-            const fullPath = 'images/maps/Vocal/' + currentMap + '/' + imagePath;
-            console.log('Full image path:', fullPath);
             mapImage.setAttribute("xlink:href", fullPath);
             
             const parts = imagePath.split("_")[1];
@@ -181,7 +178,6 @@ function setNextLocationImage() {
 function getNextCallout() {
     var calloutKeys = Object.keys(displayedCallouts);
     var randomKey = calloutKeys[Math.floor(Math.random() * calloutKeys.length)];
-    console.log(randomKey);
     if (randomKey) {
         // Display the callout name and store the data
         calloutName = randomKey;
@@ -191,7 +187,6 @@ function getNextCallout() {
         calloutDisplayText.innerText = "No callout found";
         calloutLocation = [];  // Reset the data if none found
     }
-    console.log(calloutLocation);
 }
 
 // Saves any changes to callouts
@@ -257,7 +252,6 @@ mapImage.addEventListener('click', function(event) {
         } 
         else {
             failedAttempts++;
-            console.log(failedAttempts);
             if (failedAttempts >= maxFailedAttempts) {
 
                 // Show the correct callout area
@@ -330,7 +324,6 @@ function initSelectCalloutLocation() {
             if (calloutName !== null) {
                 addCalloutText(calloutName, topX, topY, bottomX, bottomY);
                 displayedCallouts[calloutName] = [topX, topY, bottomX, bottomY];
-                console.log(displayedCallouts);
             } 
         }
 
