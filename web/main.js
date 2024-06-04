@@ -7,6 +7,7 @@ const svgContainer = document.getElementById('svgContainer');
 const startButton = document.getElementById('startButton');
 const saveButton = document.getElementById('saveButton');
 const mapSelector = document.getElementById('mapSelector');
+const gamemodeSelector = document.getElementById('gamemodeSelector');
 const calloutDisplayText = document.getElementById('calloutDisplay');
 const addCalloutButton = document.getElementById('addButton');
 const delCalloutButton = document.getElementById('delButton');
@@ -104,16 +105,14 @@ let calloutLocation;
 function toggleGameLoop() {
     gameRunning = !gameRunning;
     startButton.innerText = gameRunning ? 'Stop Game' : 'Start Game';
-    const currentMap = document.getElementById('mapSelector').value;
-    const gameMode = document.getElementById('gamemodeSelector').value;
+    const currentMap = mapSelector.value;
+    const gameMode = gamemodeSelector.value;
 
     if (gameRunning) {
         // Disable Dropdown Menu
-        document.getElementById('gamemodeSelector').disabled = true;
-        document.getElementById('gamemodeSelector').classList.add('disabled-dropdown');    
+        gamemodeSelector.disabled = true;
 
         mapSelector.disabled = true;
-        mapSelector.classList.add('disabled-dropdown');
         clearMapText();
 
         if (gameMode === 'Vocal') {
@@ -128,10 +127,8 @@ function toggleGameLoop() {
         }
     } else {
         // Enable the dropdown and update its appearance
-        document.getElementById('mapSelector').disabled = false;
-        document.getElementById('gamemodeSelector').disabled = false;
-        document.getElementById('mapSelector').classList.remove('disabled-dropdown');
-        document.getElementById('gamemodeSelector').classList.remove('disabled-dropdown');
+        mapSelector.disabled = false;
+        gamemodeSelector.disabled = false;
 
         // Remove callout text
         calloutDisplayText.innerText = "";
@@ -256,7 +253,7 @@ mapImage.addEventListener('click', function(event) {
             // Reset failed attempts counter
             failedAttempts = 0;
             // Get the next callout
-            getNextCallout(document.getElementById('mapSelector').value);
+            getNextCallout(mapSelector.value);
         } 
         else {
             failedAttempts++;
@@ -329,6 +326,7 @@ function initSelectCalloutLocation() {
                 bottomY = tmp;
             }
 
+            // Adds callout text
             if (calloutName !== null) {
                 addCalloutText(calloutName, topX, topY, bottomX, bottomY);
                 displayedCallouts[calloutName] = [topX, topY, bottomX, bottomY];

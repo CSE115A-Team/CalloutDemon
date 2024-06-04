@@ -7,53 +7,42 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>CalloutDemon</h1>
-    <select id="gamemodeSelector">
-        <option>Click</option>
-        <option>Vocal</option>
-    </select>
-    <div class="inline-container">
-        <select id="mapSelector">
-            <option value="ascent">Ascent</option>
-            <option value="bind">Bind</option>
-            <option value="icebox">Icebox</option>
-            <option value="split">Split</option>
-            <option value="lotus">Lotus</option>
-            <option value="breeze">Breeze</option>
-            <option value="sunset">Sunset</option>
-        </select>
-
-        <button id="startButton">Start Game</button>
-        <button id="saveButton">Save Callouts</button>
-
-        <a href='settingPage.html'>
-            <button id="settingButton">Setting</button>
-        </a>
-    </div>
-
-    <div id="svgContainerWrapper">
-        <svg id="svgContainer" width="600" height="600">
-            <image id="mapImage" xlink:href="" alt="Map Image" style="max-width: 600px; display: block; margin: auto;"/>
+    <div class="container">
+        <div class="inline-container">
+            <select id="gamemodeSelector">
+                <option>Click</option>
+                <option>Vocal</option>
+            </select>
+            <select id="mapSelector">
+                <option value="ascent">Ascent</option>
+                <option value="bind">Bind</option>
+                <option value="lotus">Lotus</option>
+                <option value="icebox">Icebox</option>
+                <option value="split">Split</option>
+                <option value="breeze">Breeze</option>
+                <option value="sunset">Sunset</option>
+            </select>
+            <button id="startButton">Start Game</button>
+            <a href='settingPage.html'>
+                <button id="settingButton">Setting</button>
+            </a>
+        </div>
+        <svg id="svgContainer">
+            <image id="mapImage" xlink:href="" alt="Map Image"/>
         </svg>
-    </div>
-
-    <p id="calloutDisplay"></p>
-    <div class="inline-container">
-        <button id="addButton">Add Callout</button>
-        <button id="delButton">Delete Callout</button>
-    </div>
-
-    <div>
-        <button id="signInButton">Create Account / Sign In</button>
-        <button id="signOutButton">Sign Out</button>
-
-        <div id="message">
-            <p>You have signed in as <span id="userName"></span> with the email <span id="userEmail"></span> </p>
+        <p id="calloutDisplay"></p>
+        <div class="inline-container2">
+            <button id="addButton">Add Callout</button>
+            <button id="delButton">Delete Callout</button>
+            <button id="saveButton">Save Callouts</button>
+            <button id="signInButton">Create Account / Sign In</button>
+            <button id="signOutButton">Sign Out</button>
+            <div id="message">
+                <p>Signed in as <span id="userName"></span> with the email <span id="userEmail"></span> </p>
+            </div>
         </div>
     </div>
-
     <script src="eel.js"></script>
-
     <script type="module" src="MicInput.js"></script>
     <script type="module" src="FirebaseAppConnection.js"></script>
     <script type="module" src="MapStorage.js"></script>
