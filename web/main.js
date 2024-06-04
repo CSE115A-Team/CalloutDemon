@@ -7,6 +7,7 @@ const svgContainer = document.getElementById('svgContainer');
 const startButton = document.getElementById('startButton');
 const saveButton = document.getElementById('saveButton');
 const mapSelector = document.getElementById('mapSelector');
+const gamemodeSelector = document.getElementById('gamemodeSelector');
 const calloutDisplayText = document.getElementById('calloutDisplay');
 const addCalloutButton = document.getElementById('addButton');
 const delCalloutButton = document.getElementById('delButton');
@@ -25,7 +26,6 @@ function updateMapImage() {
     clearMapText();
     
     const selectedMap = mapSelector.value;
-    console.log('Selected image path:', 'images/maps/' + selectedMap + '_unlabeled.png');
     mapImage.setAttribute("xlink:href", 'images/maps/' + selectedMap + '_unlabeled.png');
 
     let saveLoc = getUserUUID();
@@ -33,39 +33,55 @@ function updateMapImage() {
         saveLoc = "default";
     }
     mapStorage.getMapDataByUUID(selectedMap, saveLoc)
-        .then((data) => {
-            displayedCallouts = data;
-            drawMapCallouts();
-        })
-        .catch((error) => {
-            displayedCallouts = {};
-            console.error("Error getting map data:", error);
-        });
+    .then((data) => {
+        displayedCallouts = data;
+        drawMapCallouts();
+    })
+    .catch((error) => {
+        displayedCallouts = {};
+        console.error("Error getting map data:", error);
+    });
 }
 
 mapSelector.addEventListener('change', () => {
     updateMapImage();
 });
 
-function addCalloutText(text, topX, topY, bottomX, bottomY) {
+function drawMapCallouts() {
 
-    // How much to offset position of label
-    var boxHeightOffset = (bottomY - topY) / 2;
-    var boxWidthOffset = (bottomX - topX) / 2;
+    // Loop and display all keys in json
+    for (const callout in displayedCallouts) {
+        var points = displayedCallouts[callout];
+        addCalloutText(callout, points[0], points[1], points[2], points[3]);
+    }
+}
 
-    // Creates text and adds it to svg
+
+function createTextElement(text) {
     var textElement = document.createElementNS("http://www.w3.org/2000/svg", "text");
     textElement.textContent = text;
-    textElement.setAttribute("x", topX + boxWidthOffset);
-    textElement.setAttribute("y", topY + boxHeightOffset);
     textElement.setAttribute("dominant-baseline", "middle");
     textElement.setAttribute("text-anchor", "middle");
-    textElement.setAttribute("font-family", "Helvetica Neue");
+    textElement.setAttribute("font-family", "Sitka Small");
     textElement.setAttribute("font-size", "10px");
     textElement.setAttribute("font-weight", "bold");
     textElement.setAttribute("style", "user-select: none; fill: white;");
     textElement.setAttribute("visibility", "visible");
     textElement.setAttribute("pointer-events", "none");
+
+    return textElement;
+}
+
+function addCalloutText(text, topX, topY, bottomX, bottomY) {
+
+    // How much to offset position of label
+    var boxHeightOffset = (bottomY - topY)/2;
+    var boxWidthOffset = (bottomX - topX)/2;
+
+    // Creates text and adds it to svg
+    var textElement = createTextElement(text);
+    textElement.setAttribute("x", topX + boxWidthOffset);
+    textElement.setAttribute("y", topY + boxHeightOffset);
 
     if (boxHeightOffset > boxWidthOffset) {
         textElement.setAttribute("writing-mode", "vertical-rl");
@@ -73,17 +89,6 @@ function addCalloutText(text, topX, topY, bottomX, bottomY) {
 
     svgContainer.appendChild(textElement);
     calloutTextObjectStack.push(textElement);
-}
-
-function drawMapCallouts() {
-
-    // Loop and display all keys in json
-    for (const callout in displayedCallouts) {
-        if (callout !== null) {
-            var points = displayedCallouts[callout];
-        }
-        addCalloutText(callout, points[0], points[1], points[2], points[3]);
-    }
 }
 
 // Removes all text on the image
@@ -100,32 +105,18 @@ let calloutLocation;
 function toggleGameLoop() {
     gameRunning = !gameRunning;
     startButton.innerText = gameRunning ? 'Stop Game' : 'Start Game';
-    const currentMap = document.getElementById('mapSelector').value;
-    const gameMode = document.getElementById('gamemodeSelector').value;
+    const currentMap = mapSelector.value;
+    const gameMode = gamemodeSelector.value;
 
     if (gameRunning) {
         // Disable Dropdown Menu
-        document.getElementById('gamemodeSelector').disabled = true;
-        document.getElementById('gamemodeSelector').classList.add('disabled-dropdown');    
+        gamemodeSelector.disabled = true;
 
         mapSelector.disabled = true;
-        mapSelector.classList.add('disabled-dropdown');
         clearMapText();
 
         if (gameMode === 'Vocal') {
-            eel.get_random_image(currentMap)((imagePath) => {
-                console.log('Received image path:', imagePath);
-                if (imagePath) {
-                    const fullPath = 'images/maps/Vocal/' + currentMap + '/' + imagePath; 
-                    console.log('Full image path:', fullPath);
-                    mapImage.setAttribute("xlink:href", fullPath);
-
-                    const parts = imagePath.split("_")[1];
-                    calloutName = parts.split(".")[0];
-                } else {
-                    updateMapImage();
-                }
-            });
+            setNextLocationImage();
         } else {
 
             // Reset failed attempts counter
@@ -136,10 +127,8 @@ function toggleGameLoop() {
         }
     } else {
         // Enable the dropdown and update its appearance
-        document.getElementById('mapSelector').disabled = false;
-        document.getElementById('gamemodeSelector').disabled = false;
-        document.getElementById('mapSelector').classList.remove('disabled-dropdown');
-        document.getElementById('gamemodeSelector').classList.remove('disabled-dropdown');
+        mapSelector.disabled = false;
+        gamemodeSelector.disabled = false;
 
         // Remove callout text
         calloutDisplayText.innerText = "";
@@ -169,6 +158,25 @@ addCalloutButton.addEventListener('click', () => {
     shouldAddCallout = true;
     shouldEditCallout = false;
 });
+
+function setNextLocationImage() {
+    const currentMap = mapSelector.value;
+
+    eel.get_random_image(currentMap)((imagePath) => {
+        console.log('Received image path:', imagePath);
+        if (imagePath) {
+            const fullPath = 'images/maps/Vocal/' + currentMap + '/' + imagePath;
+            console.log('Full image path:', fullPath);
+            mapImage.setAttribute("xlink:href", fullPath);
+            
+            const parts = imagePath.split("_")[1];
+            calloutName = parts.split(".")[0];
+        }
+        else {
+            updateMapImage();
+        }
+    });
+};
 
 function getNextCallout() {
     var calloutKeys = Object.keys(displayedCallouts);
@@ -238,7 +246,6 @@ mapImage.addEventListener('click', function(event) {
     const rect = this.getBoundingClientRect();
     const x = event.clientX - rect.left; // X coordinate relative to the image
     const y = event.clientY - rect.top;  // Y coordinate relative to the image
-    console.log(`Clicked at x: ${x}, y: ${y}`);
 
     if (gameRunning) {
         if (x >= calloutLocation[0] && y >= calloutLocation[1] && x <= calloutLocation[2] && y <= calloutLocation[3]) {
@@ -246,7 +253,7 @@ mapImage.addEventListener('click', function(event) {
             // Reset failed attempts counter
             failedAttempts = 0;
             // Get the next callout
-            getNextCallout(document.getElementById('mapSelector').value);
+            getNextCallout(mapSelector.value);
         } 
         else {
             failedAttempts++;
@@ -268,23 +275,40 @@ mapImage.addEventListener('click', function(event) {
     shouldEditCallout = true;
 });
 
+
+let isDragging = false;
 function initSelectCalloutLocation() {
 
-    // Code to edit callout boxes
     let topX, topY, bottomX, bottomY;
+    let startX, startY, dragAreaRectangle = null;
 
     // Find image rectangle
-    mapImage.addEventListener('mousedown', function(event) {
+    svgContainer.addEventListener('mousedown', (event) => {
         if (shouldAddCallout) {
-            const rect = this.getBoundingClientRect();
+            isDragging = true;
+            startX = event.offsetX;
+            startY = event.offsetY;
+            
+            dragAreaRectangle = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+            dragAreaRectangle.setAttribute("x", startX);
+            dragAreaRectangle.setAttribute("y", startY);
+            dragAreaRectangle.setAttribute("width", 0);
+            dragAreaRectangle.setAttribute("height", 0);
+            dragAreaRectangle.setAttribute("fill", "rgba(255, 121, 63, 0.3)");
+            dragAreaRectangle.setAttribute("stroke", "orange");
+            dragAreaRectangle.setAttribute("stroke-width", 1);
+            svgContainer.appendChild(dragAreaRectangle);
+            
+            const rect = mapImage.getBoundingClientRect();
             topX = event.clientX - rect.left;
             topY = event.clientY - rect.top;
+
         }
     });
 
-    mapImage.addEventListener('mouseup', function(event) {
+    svgContainer.addEventListener('mouseup', (event) => {
         if (shouldAddCallout) {
-            const rect = this.getBoundingClientRect();
+            const rect = mapImage.getBoundingClientRect();
             bottomX = event.clientX - rect.left;
             bottomY = event.clientY - rect.top;
 
@@ -308,59 +332,91 @@ function initSelectCalloutLocation() {
                 displayedCallouts[calloutName] = [topX, topY, bottomX, bottomY];
                 console.log(displayedCallouts);
             } 
-
-            shouldAddCallout = false;
         }
+
+        if (dragAreaRectangle) {
+            svgContainer.removeChild(dragAreaRectangle);
+            dragAreaRectangle = null;
+        }
+    
+        isDragging = false;
+        shouldAddCallout = false;
+    });
+
+
+
+    // Updates area for callout as mouse is moved
+    svgContainer.addEventListener("mousemove", (event) => {
+        if (!isDragging) {
+            if (dragAreaRectangle) {
+                svgContainer.removeChild(dragAreaRectangle);
+                dragAreaRectangle = null;
+            }
+            return;
+        } 
+
+        const currentX = event.offsetX;
+        const currentY = event.offsetY;
+
+        const rectX = Math.min(currentX, startX);
+        const rectY = Math.min(currentY, startY);
+        const rectWidth = Math.abs(currentX - startX);
+        const rectHeight = Math.abs(currentY - startY);
+
+        dragAreaRectangle.setAttribute("x", rectX);
+        dragAreaRectangle.setAttribute("y", rectY);
+        dragAreaRectangle.setAttribute("width", rectWidth);
+        dragAreaRectangle.setAttribute("height", rectHeight);
     });
 }
 
 let isStarted = false;
+
+function startRecording(speechToText) {
+    isStarted = true;
+    speechToText.startRecording();
+}
+
+function stopRecording(speechToText, currentMap) {
+    isStarted = false;
+    speechToText.stopRecording();
+
+    const speechTranscript = speechToText.getSpeechTranscript();
+    speechTranscript.then((transcript) => {
+        postCallout(transcript, currentMap);
+    }).catch((error) => {
+        console.log("Speech To Text ERROR: " + error);
+    });
+}
+
+function postCallout(transcript) {
+    const wordsInTranscript = transcript.split(' ');
+
+    wordsInTranscript.forEach(curWord => {
+        if (curWord !== "" && calloutName.toLowerCase().includes(curWord.toLowerCase())) {
+            setNextLocationImage(); // Fetch the next image
+        }
+    });
+}
+
 function setVoiceCalloutHotkey(key) {
+    const currentMap = mapSelector.value;
     let speechToText = new MicInput();
 
     document.addEventListener('keydown', (event) => {
-        if (!isStarted) {
-
-
-            // Check if the key pressed is the 's' key for start recording
-            if (event.key === key) {
-                isStarted = true;
-                speechToText.startRecording();
-            }
+        if (!isStarted && event.key === key) {
+            startRecording(speechToText);
         }
     });
 
     document.addEventListener('keyup', (event) => {
-        if (isStarted) {
-
-            // Check if the key pressed is the 's' key for start recording
-            if (event.key === key) {
-                isStarted = false;
-                speechToText.stopRecording();
-
-                // Gets words in the speech transcript
-                const speechTranscript = speechToText.getSpeechTranscript();
-                speechTranscript.then((transcript) => {
-
-                    console.log("transcripts: " + transcript);
-                    const wordsInTranscript = transcript.split(' ');
-
-                    // Check if any words appear in callout
-                    wordsInTranscript.forEach(curWord => {
-                        
-                        if (curWord !== "" && calloutName.toLowerCase().includes(curWord.toLowerCase())) {
-                            // Change Callout
-                            console.log("Correct");
-                        }
-                    });
-
-                }).catch((error) => {
-                    console.log("Speech To Text ERROR: " + error);
-                });
-            }
+        if (isStarted && event.key === key) {
+            stopRecording(speechToText, currentMap);
         }
     });
 }
+
+
 
 window.onload = () => {
     initSelectCalloutLocation();
