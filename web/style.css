@@ -50,6 +50,10 @@ h1 {
     margin-bottom: 20px;
 }
 
+#settingButton {
+    display: none;
+}
+
 #svgContainer {
     width: 700px; /* Ensure the svgContainer takes full width */
     height: 700px; /* Ensure the svgContainer takes full height */
