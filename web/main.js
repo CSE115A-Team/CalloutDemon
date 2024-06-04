@@ -338,17 +338,28 @@ function stopRecording(speechToText, currentMap) {
 function postCallout(transcript, currentMap) {
     const wordsInTranscript = transcript.split(' ');
 
-    wordsInTranscript.forEach(curWord => {
+    let curWord = ''; // Define curWord outside the loop
+
+    const fetchNextImage = () => {
+        eel.get_random_image(currentMap)((imagePath) => {
+            console.log('Received image path:', imagePath);
+            if (imagePath) {
+                const fullPath = 'images/maps/Vocal/' + currentMap + '/' + imagePath;
+                console.log('Full image path:', fullPath);
+                mapImage.setAttribute("xlink:href", fullPath);
+                
+                const parts = imagePath.split("_")[1];
+                calloutName = parts.split(".")[0];
+            }
+        });
+    };
+
+    wordsInTranscript.forEach(word => {
+        curWord = word; // Update curWord in each iteration
+
         if (curWord !== "" && calloutName.toLowerCase().includes(curWord.toLowerCase())) {
             console.log("Correct");
-            eel.get_random_image(currentMap)((imagePath) => {
-                console.log('Received image path:', imagePath);
-                if (imagePath) {
-                    const fullPath = 'images/maps/Vocal/' + currentMap + '/' + imagePath; 
-                    console.log('Full image path:', fullPath);
-                    mapImage.setAttribute("xlink:href", fullPath);
-                }
-            });
+            fetchNextImage(); // Fetch the next image
         }
     });
 }
