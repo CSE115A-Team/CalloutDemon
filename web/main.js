@@ -341,7 +341,6 @@ function postCallout(transcript, currentMap) {
     wordsInTranscript.forEach(curWord => {
         if (curWord !== "" && calloutName.toLowerCase().includes(curWord.toLowerCase())) {
             console.log("Correct");
-            stopRecording();
             eel.get_random_image(currentMap)((imagePath) => {
                 console.log('Received image path:', imagePath);
                 if (imagePath) {
@@ -350,7 +349,6 @@ function postCallout(transcript, currentMap) {
                     mapImage.setAttribute("xlink:href", fullPath);
                 }
             });
-            startRecording();
         }
     });
 }
