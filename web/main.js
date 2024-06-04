@@ -245,7 +245,6 @@ mapImage.addEventListener('click', function(event) {
     const rect = this.getBoundingClientRect();
     const x = event.clientX - rect.left; // X coordinate relative to the image
     const y = event.clientY - rect.top;  // Y coordinate relative to the image
-    console.log(`Clicked at x: ${x}, y: ${y}`);
 
     if (gameRunning) {
         if (x >= calloutLocation[0] && y >= calloutLocation[1] && x <= calloutLocation[2] && y <= calloutLocation[3]) {
@@ -313,7 +312,6 @@ function initSelectCalloutLocation() {
             if (calloutName !== null) {
                 addCalloutText(calloutName, topX, topY, bottomX, bottomY);
                 displayedCallouts[calloutName] = [topX, topY, bottomX, bottomY];
-                console.log(displayedCallouts);
             } 
 
             shouldAddCallout = false;
@@ -334,7 +332,6 @@ function stopRecording(speechToText, currentMap) {
 
     const speechTranscript = speechToText.getSpeechTranscript();
     speechTranscript.then((transcript) => {
-        console.log("transcripts: " + transcript);
         postCallout(transcript, currentMap);
     }).catch((error) => {
         console.log("Speech To Text ERROR: " + error);

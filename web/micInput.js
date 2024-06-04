@@ -22,7 +22,6 @@ export class MicInput {
             let transcriptText = "";
             this.recognition.onresult = (event) => {
                 transcriptText = event.results[event.results.length - 1][0].transcript;
-                console.log("result: " + transcriptText);
             };
 
             this.recognition.onend = () => {
