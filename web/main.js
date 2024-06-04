@@ -297,8 +297,8 @@ function initSelectCalloutLocation() {
             dragAreaRectangle.setAttribute("y", startY);
             dragAreaRectangle.setAttribute("width", 0);
             dragAreaRectangle.setAttribute("height", 0);
-            dragAreaRectangle.setAttribute("fill", "rgba(0, 0, 255, 0.3)");
-            dragAreaRectangle.setAttribute("stroke", "blue");
+            dragAreaRectangle.setAttribute("fill", "rgba(255, 121, 63, 0.3)");
+            dragAreaRectangle.setAttribute("stroke", "orange");
             dragAreaRectangle.setAttribute("stroke-width", 1);
             svgContainer.appendChild(dragAreaRectangle);
             
