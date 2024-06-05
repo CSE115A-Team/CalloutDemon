@@ -1,6 +1,6 @@
 // Import the functions you need from the SDKs you need
 import app from './FirebaseAppConnection.js';
-import { getFirestore, doc, getDoc, setDoc, addDoc, collection } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, doc, getDoc, setDoc, collection } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 export class MapStorage {
 
@@ -13,24 +13,25 @@ export class MapStorage {
 
         // Promise to get map data or error
         return new Promise((resolve, reject) => {
-            const docRef = doc(this.db, 'users', uuid);
+            const documentRef = doc(this.db, 'users', uuid);
 
             // If document exists returns data otherwise sets default data first
-            getDoc(docRef)
-            .then((doc) => {
-                if (doc.exists) {
-                    resolve(JSON.parse(doc.data()[map]));
-                } else {
-
-                    // Get default document and return map data
-                    const defaultDoc = doc(this.db, 'users', 'default');
-                    getDoc(defaultDoc).then((doc) => {
-                        setDoc(docRef, doc.data());
-                        resolve(JSON.parse(doc.data()[map]));
-                    })
-                    .catch((error) => {
-                        reject(error);
-                    });
+            getDoc(documentRef).then((docObject) => {
+                if (docObject.exists) {
+                    const docData = docObject.data();
+                    if (docData) {
+                        resolve(docData[map]);
+                    }
+                    else {
+                        // Get default document and return map data
+                        const defaultDocRef = doc(this.db, 'users', 'default');
+                        getDoc(defaultDocRef).then((doc) => {
+                            setDoc(documentRef, doc.data());
+                            resolve(doc.data()[map]);
+                        }).catch((error) => {
+                            reject(error);
+                        });
+                    }
                 }
             }).catch((error) => {
                 reject(error);
@@ -44,6 +45,6 @@ export class MapStorage {
         const docRef = doc(this.db, 'users', uuid);
 
         return setDoc(docRef, 
-            { [map]: JSON.stringify(data)}, { merge: true });
+            { [map]: data}, {merge: true});
     }
 }
