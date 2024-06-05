@@ -2,9 +2,6 @@ import json
 import random
 import eel
 import os
-import wave
-import io
-import base64
 
 eel.init('web')  # Initialize Eel with the 'web' directory
 
