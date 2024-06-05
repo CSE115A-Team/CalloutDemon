@@ -20,14 +20,14 @@ export class MapStorage {
                 if (docObject.exists) {
                     const docData = docObject.data();
                     if (docData) {
-                        resolve(docData[map]);
+                        resolve(JSON.parse(docData[map]));
                     }
                     else {
                         // Get default document and return map data
                         const defaultDocRef = doc(this.db, 'users', 'default');
                         getDoc(defaultDocRef).then((doc) => {
                             setDoc(documentRef, doc.data());
-                            resolve(doc.data()[map]);
+                            resolve(JSON.parse(doc.data()[map]));
                         }).catch((error) => {
                             reject(error);
                         });
@@ -45,6 +45,6 @@ export class MapStorage {
         const docRef = doc(this.db, 'users', uuid);
 
         return setDoc(docRef, 
-            { [map]: data}, {merge: true});
+            { [map]: JSON.stringify(data)}, {merge: true});
     }
 }
